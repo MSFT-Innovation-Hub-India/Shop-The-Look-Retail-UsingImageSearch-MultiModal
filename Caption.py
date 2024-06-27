@@ -70,8 +70,8 @@ def process_catalog(dataframe, output_csv, client, azure_oai_deployment):
 
 def main():
     load_dotenv()
-    input_csv = '/mnt/d/dataset.csv'
-    output_csv = '/mnt/d/detailed_captions.csv'
+    input_csv =  '/home/yohanb/shop-the-look-retial/test.csv'
+    output_csv = '/home/yohanb/shop-the-look-retial/output.csv'
 
 
     if not azure_oai_endpoint or not azure_oai_key or not azure_oai_deployment:
@@ -85,6 +85,9 @@ def main():
     )
 
     dataframe = pd.read_csv(input_csv)
+    
+    
+    
     process_catalog(dataframe, output_csv, client, azure_oai_deployment)
     print("Processing complete. Detailed captions saved to", output_csv)
 
