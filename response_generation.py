@@ -5,12 +5,12 @@ import json
 # Add Azure OpenAI package
 from openai import AzureOpenAI
 
-def main(): 
+def response_generation(respone_json, prompt): 
     try: 
         # Get configuration settings 
         load_dotenv()
-        azure_oai_endpoint = os.getenv("AZURE_OAI_ENDPOINT")
-        azure_oai_key = os.getenv("AZURE_OAI_KEY")
+        azure_oai_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        azure_oai_key = os.getenv("AZURE_OPENAI_KEY")
         azure_oai_deployment = os.getenv("AZURE_OAI_DEPLOYMENT")
         
         # Initialize the Azure OpenAI client...
@@ -39,14 +39,14 @@ def main():
                 response_content = json.load(f)
 
             # Get input text
-            input_text = input("Enter the prompt (or type 'quit' to exit): ")
-            if input_text.lower() == "quit":
-                break
-            if len(input_text) == 0:
-                print("Please enter a prompt.")
-                continue
+            # input_text = input("Enter the prompt (or type 'quit' to exit): ")
+            # if input_text.lower() == "quit":
+            #     break
+            # if len(input_text) == 0:
+            #     print("Please enter a prompt.")
+            #     continue
 
-            print("\nSending request for summary to Azure OpenAI endpoint...\n\n")
+            # print("\nSending request for summary to Azure OpenAI endpoint...\n\n")
             
              # Add code to send request...
             # Send request to Azure OpenAI model
@@ -56,19 +56,17 @@ def main():
                 max_tokens=4096,
                 messages=[
                     {"role": "system", "content": system_message},
-                    {"role": "user", "content": input_text},
+                    {"role": "user", "content": prompt},
                     {"role": "assistant", "content": json.dumps(response_content, indent=2)}     
                 ]
             )
             generated_text = response.choices[0].message.content
 
             # Print the response
-            print(generated_text + "\n")
+            # print(generated_text + "\n")
             #print(response.model_dump_json(indent=2))
             
+            return response
 
     except Exception as ex:
         print(ex)
-
-if __name__ == '__main__': 
-    main()
