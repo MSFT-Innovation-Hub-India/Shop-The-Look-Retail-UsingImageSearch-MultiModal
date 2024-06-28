@@ -36,6 +36,8 @@ c = st.container(height=550)
 
 uploaded_file = st.file_uploader("Upload your image...", type=["jpg", "jpeg", "png"])
 
+image_url = None
+
 if uploaded_file is not None:
     image_id = uuid.uuid4().hex
     filename, file_extension = os.path.splitext(uploaded_file.name)
@@ -64,46 +66,49 @@ if uploaded_file is not None:
         st.image(image_url, caption="Uploaded Image (Preview)", width=200)
     except Exception as e:
         st.error(f"Error uploading image: {e}")
-        
+
+def response_generator():
+
+    try:
+        params = {'image_url': image_url, 'text_query': prompt}
+        response = requests.post("http://localhost:8080/search", json=params)  # Send as JSON
+                
+        if response.status_code == 200:
+            results = response.json()
+            st.success('Successfully retrieved from server')
+                    
+                    # Display search results and save them to session state
+            for result in results:
+                response = st.image(result['url'], width=100), st.write(f"Name: {result['name']}"), st.write(f"URL: {result['url']}"), st.write("-" * 50), st.session_state.results.append(result)
+        else:
+            st.error(f'Failed to retrieve from server. Status code: {response.status_code}')
+    except Exception as e:
+        st.error(f"Error: {e}")
+
+    #Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt, "image": image_url})
+
 # Display previous messages
 for message in st.session_state.messages:
     with c.chat_message(message["role"]):
         st.write(message["content"])
-        if message["image"]:
-            st.image(message["image"], width=100)
+        # if message["image"]:
+        #     st.image(message["image"], width=100)
+        if image_url:
+            st.image(image_url)
 
 # React to user input
 if prompt := st.chat_input("What is up?"):
-    # Display user message in chat message container
-    with c.chat_message("user"):
-        st.write(prompt)
-        if image_url is not None:  # Check if image_url is set
+    if image_url is not None:  # Check if image_url is set
             st.image(image_url, width=100)
-            
-            # Send GET request to Flask server with image URL and text input
-            try:
-                params = {'image_url': image_url, 'text_query': prompt}
-                response = requests.post("http://localhost:8080/search", json=params)  # Send as JSON
-                
-                if response.status_code == 200:
-                    results = response.json()
-                    st.success('Successfully retrieved from server')
-                    
-                    # Display search results and save them to session state
-                    for result in results:
-                        st.write(f"Name: {result['name']}")
-                        st.write(f"URL: {result['url']}")
-                        st.image(result['url'], width=100)
-                        st.write("-" * 50)
-                        # Save result to session state
-                        st.session_state.results.append(result)
-                        #st.session_state.messages.append({"role": "assistant", "content": result["name"]})
-                else:
-                    st.error(f'Failed to retrieve from server. Status code: {response.status_code}')
-            except Exception as e:
-                st.error(f"Error: {e}")
-        else:
-            st.error('Please upload an image')
-    
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt, "image": image_url})
+            # Add user message to chat history
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            # Display user message in chat message container
+            with c.chat_message("user"):
+                st.markdown(prompt)
+
+            # Display assistant response in chat message container
+            with c.chat_message("assistant"):
+                response = response_generator()
+            # Add assistant response to chat history
+            st.session_state.messages.append({"role": "assistant", "content": response})
