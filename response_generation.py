@@ -5,7 +5,7 @@ import json
 # Add Azure OpenAI package
 from openai import AzureOpenAI
 
-def response_generation(respone_json, prompt): 
+def response_generation(response_json, prompt): 
     try: 
         # Get configuration settings 
         load_dotenv()
@@ -35,8 +35,6 @@ def response_generation(respone_json, prompt):
 
         while True:
             # Read the response from the JSON file
-            with open("response.json", "r") as f:
-                response_content = json.load(f)
 
             # Get input text
             # input_text = input("Enter the prompt (or type 'quit' to exit): ")
@@ -57,9 +55,11 @@ def response_generation(respone_json, prompt):
                 messages=[
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": prompt},
-                    {"role": "assistant", "content": json.dumps(response_content, indent=2)}     
+                    {"role": "assistant", "content": response_json}     
                 ]
             )
+            
+            # print(response)
             generated_text = response.choices[0].message.content
 
             # Print the response

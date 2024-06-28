@@ -1,4 +1,5 @@
 import requests
+from response_generation import *
 
 def main():
     # Take image URL and text prompt from the user
@@ -14,7 +15,13 @@ def main():
         response.raise_for_status()
         
         # Print the response from the server
-        print("Response from server:", response.json())
+        
+        description_response = response.json()
+        description_response = description_response[0]['name']
+        
+        openai_response = response_generation(description_response, prompt)
+        print(openai_response.choices[0].message.content)
+        print(description_response[0]['url'])
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
 
