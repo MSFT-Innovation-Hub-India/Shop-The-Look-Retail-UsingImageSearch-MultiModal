@@ -10,8 +10,8 @@ import uuid
 load_dotenv(".env")
 
 # Initialize Azure Blob Storage
-connect_str = "DefaultEndpointsProtocol=https;AccountName=stlprojectstorage;AccountKey=W/hJZzTvxeC1FsCDC70If3W9rxA0Wo3e/uO9EAItdXe8v8duNZSEFgGCuImR0+hv95grfmpT0cE++AStymGoWQ==;EndpointSuffix=core.windows.net"
-container_name = "image"
+connect_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+container_name = os.getenv("BLOB_CONTAINER_NAME_IMG")
 blob_service_client = BlobServiceClient.from_connection_string(connect_str)
 
 st.title("🛍 Shop the Look")
