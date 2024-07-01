@@ -31,7 +31,7 @@ def response_generation(response_json, prompt):
 
         system_message = """You are a fashion assistant which provides the user an enticing fashion suggestion,
         based on their request and the description of the suggested clothing item. 
-        You may provide only relevant attributes from the JSON data and answer the users request in a conversational manner."""
+        You may provide only relevant attributes from the JSON data and answer the users request in a conversational manner. Do not provide follow-up questions or ask for additional information."""
 
         while True:
             # Read the response from the JSON file
