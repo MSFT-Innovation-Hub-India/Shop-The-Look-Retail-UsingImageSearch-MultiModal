@@ -1,28 +1,27 @@
 import streamlit as st
-import base64
-import requests
 from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
-import uuid 
+import uuid
+from response_generation import *
+import requests
+
 # Load environment variables from .env file
 load_dotenv(".env")
 
 # Initialize Azure Blob Storage
-connect_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+connect_str = os.getenv("BLOB_CONNECTION_STRING")
 container_name = os.getenv("BLOB_CONTAINER_NAME_IMG")
 blob_service_client = BlobServiceClient.from_connection_string(connect_str)
 
 st.title("🛍 Shop the Look")
 st.caption("Upload an image and find similar items in our catalog")
 
-# Initialize a variable to store the image URL
-# image_url = None
-
 # Initialize chat history and result history
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
 if "results" not in st.session_state:
     st.session_state.results = []
 
@@ -30,7 +29,6 @@ with st.sidebar:
     st.header('Result History')
     for result in st.session_state.results:
         st.image(result['url'], width=300)
-        st.write("-" * 50)
 
 c = st.container(height=550)
 
@@ -43,13 +41,11 @@ if uploaded_file is not None:
     filename, file_extension = os.path.splitext(uploaded_file.name)
     filename = f"{image_id}{file_extension}"
     st.write(uploaded_file.name)
-    # Upload the file to Azure Blob Storage
 
     try:
         blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
-        blob_client.upload_blob(uploaded_file, overwrite=True)  # Ensure the blob is overwritten if it exists
+        blob_client.upload_blob(uploaded_file, overwrite=True)
 
-        # Generate a SAS token for the uploaded image
         sas_token = generate_blob_sas(
             account_name=blob_service_client.account_name,
             container_name=container_name,
@@ -60,55 +56,104 @@ if uploaded_file is not None:
         )
 
         image_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/{filename}?{sas_token}"
-        st.write(f"Image URL: {image_url}")
-
-        # Display the image in Streamlit
         st.image(image_url, caption="Uploaded Image (Preview)", width=200)
     except Exception as e:
         st.error(f"Error uploading image: {e}")
 
-def response_generator():
+# Function to call inputoutput.py and capture its output
+# def call_inputoutput(image_url, prompt):
+#     try:
+#         result = subprocess.run(['python', 'inputoutput.py'], input=f'{image_url}\n{prompt}', text=True, capture_output=True, check=True)
+#         output_lines = result.stdout.splitlines()
+#         openai_response = output_lines[-2]
+#         url_response = output_lines[-1]
+#         return openai_response, url_response
+#     except subprocess.CalledProcessError as e:
+#         st.error(f"An error occurred: {e}")
+#         return None, None
 
-    try:
-        params = {'image_url': image_url, 'text_query': prompt}
-        response = requests.post("http://localhost:8080/search", json=params)  # Send as JSON
-                
-        if response.status_code == 200:
-            results = response.json()
-            st.success('Successfully retrieved from server')
-                    
-                    # Display search results and save them to session state
-            for result in results:
-                response = st.image(result['url'], width=100), st.write(f"Name: {result['name']}"), st.write(f"URL: {result['url']}"), st.write("-" * 50), st.session_state.results.append(result)
-        else:
-            st.error(f'Failed to retrieve from server. Status code: {response.status_code}')
-    except Exception as e:
-        st.error(f"Error: {e}")
-
-    #Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt, "image": image_url})
-
-# Display previous messages
+# Display previous messages and results
 for message in st.session_state.messages:
-    with c.chat_message(message["role"]):
-        st.write(message["content"])
-        # if message["image"]:
-        #     st.image(message["image"], width=100)
-        if image_url:
-            st.image(image_url)
+    with c.chat_message("user" if message["role"] == "user" else "assistant"):
+        st.markdown(message["content"])
+        if "image" in message and message["image"]:
+            st.image(message["image"], width=200)
+        if "results" in message and message["results"]:
+            for result in message["results"]:
+                st.image(result['url'], width=250)
+                st.write(f"Name: {result['name']}")
+                st.write(f"URL: {result['url']}")
+                st.write("-" * 50)
 
 # React to user input
-if prompt := st.chat_input("What is up?"):
-    if image_url is not None:  # Check if image_url is set
-            st.image(image_url, width=100)
-            # Add user message to chat history
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            # Display user message in chat message container
-            with c.chat_message("user"):
-                st.markdown(prompt)
+if prompt := st.chat_input("How can I help?"):
+    if image_url is not None:
+        st.session_state.messages.append({"role": "user", "content": prompt, "image": image_url})
 
-            # Display assistant response in chat message container
+        with c.chat_message("user"):
+            st.markdown(prompt)
+            st.image(image_url, width=200)
+
+        #################################################### 
+
+        # params = {'image_url': image_url, 'text_query': prompt}
+        # search_response = requests.post("http://localhost:8080/search", json=params)
+        
+        # Check if the request was successful
+        # search_response.raise_for_status()
+
+        description_response = [
+    {
+        "id": 0,
+        "name": "Khushal K Women Black Ethnic Motifs Printed Kurta with Palazzos & With Dupatta",
+        "price": 5099.0,
+        "img": "http://assets.myntassets.com/assets/images/17048614/2022/2/4/b0eb9426-adf2-4802-a6b3-5dbacbc5f2511643971561167KhushalKWomenBlackEthnicMotifsAngrakhaBeadsandStonesKurtawit7.jpg",
+        "brand": "Khushal K",
+        "avg_rating": 4.4183989385,
+        "p_attributes": "{'Add-Ons': 'NA', 'Body Shape ID': '443,333,324,424', 'Body or Garment Size': 'Garment Measurements in', 'Bottom Closure': 'Slip-On', 'Bottom Fabric': 'Viscose Rayon', 'Bottom Pattern': 'Printed', 'Bottom Type': 'Palazzos', 'Character': 'NA', 'Dupatta': 'With Dupatta', 'Dupatta Border': 'Solid', 'Dupatta Fabric': 'Viscose Rayon', 'Dupatta Pattern': 'Printed', 'Main Trend': 'Indie Prints', 'Neck': 'Mandarin Collar', 'Number of Pockets': 'NA', 'Occasion': 'Festive', 'Ornamentation': 'NA', 'Pattern Coverage': 'Placement', 'Print or Pattern Type': 'Ethnic Motifs', 'Sleeve Length': 'Three-Quarter Sleeves', 'Sleeve Styling': 'Regular Sleeves', 'Slit Detail': 'NA', 'Stitch': 'Ready to Wear', 'Sustainable': 'Regular', 'Technique': 'Screen', 'Top Design Styling': 'Regular', 'Top Fabric': 'Viscose Rayon', 'Top Hemline': 'Flared', 'Top Length': 'Calf Length', 'Top Pattern': 'Printed', 'Top Shape': 'Anarkali', 'Top Type': 'Kurta', 'Waistband': 'Elasticated', 'Wash Care': 'Machine Wash', 'Weave Pattern': 'Regular', 'Weave Type': 'Machine Weave'}"
+    },
+    {
+        "id": 1,
+        "name": "InWeave Women Orange Solid Kurta with Palazzos & Floral Print Dupatta",
+        "price": 5899.0,
+        "img": "http://assets.myntassets.com/assets/images/16524740/2021/12/29/17ab2ac8-2e60-422d-9d20-2527415932361640754214931-STRAPPY-SET-IN-ORANGE-WITH-ORGANZA-DUPATTA-5961640754214349-2.jpg",
+        "brand": "InWeave",
+        "avg_rating": 4.11933395,
+        "p_attributes": "{'Add-Ons': 'NA', 'Body Shape ID': '443,333,324,424', 'Body or Garment Size': 'Garment Measurements in', 'Bottom Closure': 'Zip', 'Bottom Fabric': 'Viscose Rayon', 'Bottom Pattern': 'Solid', 'Bottom Type': 'Palazzos', 'Character': 'NA', 'Dupatta': 'With Dupatta', 'Dupatta Border': 'Printed', 'Dupatta Fabric': 'Organza', 'Dupatta Pattern': 'Printed', 'Main Trend': 'NA', 'Neck': 'Square Neck', 'Number of Pockets': 'NA', 'Occasion': 'Fusion', 'Ornamentation': 'NA', 'Pattern Coverage': 'None', 'Print or Pattern Type': 'Solid', 'Sleeve Length': 'Sleeveless', 'Sleeve Styling': 'Shoulder Straps', 'Slit Detail': 'NA', 'Stitch': 'Ready to Wear', 'Sustainable': 'Regular', 'Technique': 'NA', 'Top Design Styling': 'Regular', 'Top Fabric': 'Viscose Rayon', 'Top Hemline': 'Flared', 'Top Length': 'Calf Length', 'Top Pattern': 'Solid', 'Top Shape': 'A-Line', 'Top Type': 'Kurta', 'Waistband': 'Elasticated', 'Wash Care': 'Hand Wash', 'Weave Pattern': 'Regular', 'Weave Type': 'Machine Weave'}"
+    }]
+
+        # Print the response from the server
+        # description_response = search_response.json()
+        # url_response = description_response[0]['url']
+        url_response = description_response[0]['img']
+        description_response = description_response[0]['name']
+
+        openai_response = response_generation(description_response, prompt)
+        if openai_response:
+            print(openai_response.choices[0].message.content)
+            results = [{"name": openai_response, "url": url_response}]
+            st.session_state.messages.append({"role": "assistant", "image": url_response, "content": openai_response.choices[0].message.content})
+
             with c.chat_message("assistant"):
-                response = response_generator()
-            # Add assistant response to chat history
-            st.session_state.messages.append({"role": "assistant", "content": response})
+                for result in results:
+                    # st.write(f"Name: {result['name']}")
+                    st.write(openai_response.choices[0].message.content)
+                    st.image(result['url'], width=250)
+                    # st.write(f"URL: {result['url']}")
+                    # st.write("-" * 50)
+
+            # Append the new results to the results history
+            st.session_state.results.extend(results)
+        else:
+            st.session_state.messages.append({"role": "assistant", "content": "No results returned.", "results": []})
+            with c.chat_message("assistant"):
+                st.markdown("No results returned.")
+
+    else:
+        st.session_state.messages.append({"role": "user", "content": prompt, "image": None})
+        with c.chat_message("user"):
+            st.markdown(prompt)
+
+        st.session_state.messages.append({"role": "assistant", "content": "No image provided. Please upload an image to get results.", "results": []})
+        with c.chat_message("assistant"):
+            st.markdown("No image provided. Please upload an image to get results.")
