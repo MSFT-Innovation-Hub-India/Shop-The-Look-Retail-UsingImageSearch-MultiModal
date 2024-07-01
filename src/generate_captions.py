@@ -26,10 +26,10 @@ def gen_caption(img_url, attributes):
         model=deployment_name,
         messages=[
             { "role": "system", "content": "You are an expert in fashion design.\
-              Generate an enticing description for the products in the image\
-              make use of the attributes to describe the products. \
-              The description that you generate must be such that it \
-             can be easily used in a vectory search algorithm" },
+            Generate an enticing description for the products in the image\
+            make use of the attributes to describe the products. \
+            The description that you generate must be such that it \
+            can be easily used in a vectory search algorithm" },
 
             { "role": "user", "content": [  
                 { 
@@ -46,7 +46,10 @@ def gen_caption(img_url, attributes):
         ],
         max_tokens=2000 
     )
-    
+
+
+
+
     return response.choices[0].message.content
 
 
