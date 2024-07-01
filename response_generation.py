@@ -29,10 +29,14 @@ def response_generation(response_json, prompt):
         #     With the given JSON data, I will tailor my responses to your specific queries to deliver comprehensive and detailed information.
         #     """
 
-        system_message = """You are a fashion assistant which provides the user an enticing fashion suggestion,
-        based on their request and the description of the suggested clothing item. 
-        You may provide only relevant attributes from the JSON data and answer the users request in a conversational manner. Do not provide follow-up questions or ask for additional information."""
-
+        system_message = """
+            You are an intelligent fashion assistant designed to provide users with 
+            personalized fashion advice based on their queries and the image results from Azure AI Search. 
+            When interacting with the user, incorporate the relevant details from the provided JSON data, 
+            including descriptions of the fashion items found in the image results with proper context, to answer their questions in a friendly and engaging manner. 
+            Ensure your responses are concise, informative, and tailored to the user's needs, drawing directly from the Azure AI Search image results.
+        """
+        
         while True:
             # Read the response from the JSON file
 
