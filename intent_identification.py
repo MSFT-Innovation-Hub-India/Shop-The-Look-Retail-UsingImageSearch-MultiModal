@@ -12,7 +12,7 @@ api_version = os.getenv("AZURE_OAI_API_VERSION")
 
 
 
-def gen_caption(img_url, attributes):
+def identify_intent(user_text, img_url):
 
     client = AzureOpenAI(
         api_key = api_key,
@@ -20,21 +20,16 @@ def gen_caption(img_url, attributes):
         base_url = f"{api_base}/openai/deployments/{deployment_name}",
     )
 
-    
-
     response = client.chat.completions.create(
         model=deployment_name,
         messages=[
-            { "role": "system", "content": "You are an expert in fashion design.\
-            Generate an enticing description for the products in the image\
-            make use of the attributes to describe the products. \
-            The description that you generate must be such that it \
-            can be easily used in a vectory search algorithm" },
+            { "role": "system", "content": "You are an expert in fashion design. Based on the users intent,\
+              generate a prompt that would be useful as a search query in a vector database"},
 
             { "role": "user", "content": [  
                 { 
                     "type": "text", 
-                    "text": "Describe this picture" + attributes
+                    "text": user_text
                 },
                 { 
                     "type": "image_url",
@@ -47,17 +42,5 @@ def gen_caption(img_url, attributes):
         max_tokens=2000 
     )
 
-
-
-
     return response.choices[0].message.content
 
-
-def main():
-    response = gen_caption("http://assets.myntassets.com/assets/images/17048614/2022/2/4/b0eb9426-adf2-4802-a6b3-5dbacbc5f2511643971561167KhushalKWomenBlackEthnicMotifsAngrakhaBeadsandStonesKurtawit7.jpg", "test attribute")
-    print(response)
-
-
-
-if __name__ == "__main__":
-    main()
