@@ -17,11 +17,12 @@ def main():
         # Print the response from the server
         
         description_response = response.json()
+        url_response = description_response[0]['url']
         description_response = description_response[0]['name']
         
         openai_response = response_generation(description_response, prompt)
         print(openai_response.choices[0].message.content)
-        print(description_response[0]['url'])
+        print(url_response)
     except requests.exceptions.RequestException as e:
         print(f"An error occurred: {e}")
 
