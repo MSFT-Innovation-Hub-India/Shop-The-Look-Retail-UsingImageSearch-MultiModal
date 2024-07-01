@@ -96,41 +96,22 @@ if prompt := st.chat_input("How can I help?"):
 
         #################################################### 
 
-        # params = {'image_url': image_url, 'text_query': prompt}
-        # search_response = requests.post("http://localhost:8080/search", json=params)
+        params = {'image_url': image_url, 'text_query': prompt}
+        search_response = requests.post("http://localhost:8080/search", json=params)
         
         # Check if the request was successful
-        # search_response.raise_for_status()
-
-        description_response = [
-    {
-        "id": 0,
-        "name": "Khushal K Women Black Ethnic Motifs Printed Kurta with Palazzos & With Dupatta",
-        "price": 5099.0,
-        "img": "http://assets.myntassets.com/assets/images/17048614/2022/2/4/b0eb9426-adf2-4802-a6b3-5dbacbc5f2511643971561167KhushalKWomenBlackEthnicMotifsAngrakhaBeadsandStonesKurtawit7.jpg",
-        "brand": "Khushal K",
-        "avg_rating": 4.4183989385,
-        "p_attributes": "{'Add-Ons': 'NA', 'Body Shape ID': '443,333,324,424', 'Body or Garment Size': 'Garment Measurements in', 'Bottom Closure': 'Slip-On', 'Bottom Fabric': 'Viscose Rayon', 'Bottom Pattern': 'Printed', 'Bottom Type': 'Palazzos', 'Character': 'NA', 'Dupatta': 'With Dupatta', 'Dupatta Border': 'Solid', 'Dupatta Fabric': 'Viscose Rayon', 'Dupatta Pattern': 'Printed', 'Main Trend': 'Indie Prints', 'Neck': 'Mandarin Collar', 'Number of Pockets': 'NA', 'Occasion': 'Festive', 'Ornamentation': 'NA', 'Pattern Coverage': 'Placement', 'Print or Pattern Type': 'Ethnic Motifs', 'Sleeve Length': 'Three-Quarter Sleeves', 'Sleeve Styling': 'Regular Sleeves', 'Slit Detail': 'NA', 'Stitch': 'Ready to Wear', 'Sustainable': 'Regular', 'Technique': 'Screen', 'Top Design Styling': 'Regular', 'Top Fabric': 'Viscose Rayon', 'Top Hemline': 'Flared', 'Top Length': 'Calf Length', 'Top Pattern': 'Printed', 'Top Shape': 'Anarkali', 'Top Type': 'Kurta', 'Waistband': 'Elasticated', 'Wash Care': 'Machine Wash', 'Weave Pattern': 'Regular', 'Weave Type': 'Machine Weave'}"
-    },
-    {
-        "id": 1,
-        "name": "InWeave Women Orange Solid Kurta with Palazzos & Floral Print Dupatta",
-        "price": 5899.0,
-        "img": "http://assets.myntassets.com/assets/images/16524740/2021/12/29/17ab2ac8-2e60-422d-9d20-2527415932361640754214931-STRAPPY-SET-IN-ORANGE-WITH-ORGANZA-DUPATTA-5961640754214349-2.jpg",
-        "brand": "InWeave",
-        "avg_rating": 4.11933395,
-        "p_attributes": "{'Add-Ons': 'NA', 'Body Shape ID': '443,333,324,424', 'Body or Garment Size': 'Garment Measurements in', 'Bottom Closure': 'Zip', 'Bottom Fabric': 'Viscose Rayon', 'Bottom Pattern': 'Solid', 'Bottom Type': 'Palazzos', 'Character': 'NA', 'Dupatta': 'With Dupatta', 'Dupatta Border': 'Printed', 'Dupatta Fabric': 'Organza', 'Dupatta Pattern': 'Printed', 'Main Trend': 'NA', 'Neck': 'Square Neck', 'Number of Pockets': 'NA', 'Occasion': 'Fusion', 'Ornamentation': 'NA', 'Pattern Coverage': 'None', 'Print or Pattern Type': 'Solid', 'Sleeve Length': 'Sleeveless', 'Sleeve Styling': 'Shoulder Straps', 'Slit Detail': 'NA', 'Stitch': 'Ready to Wear', 'Sustainable': 'Regular', 'Technique': 'NA', 'Top Design Styling': 'Regular', 'Top Fabric': 'Viscose Rayon', 'Top Hemline': 'Flared', 'Top Length': 'Calf Length', 'Top Pattern': 'Solid', 'Top Shape': 'A-Line', 'Top Type': 'Kurta', 'Waistband': 'Elasticated', 'Wash Care': 'Hand Wash', 'Weave Pattern': 'Regular', 'Weave Type': 'Machine Weave'}"
-    }]
+        search_response.raise_for_status()
 
         # Print the response from the server
-        # description_response = search_response.json()
-        # url_response = description_response[0]['url']
-        url_response = description_response[0]['img']
+        description_response = search_response.json()
+        print(description_response)
+        url_response = description_response[0]['url']
+        # url_response = description_response[0]['img']
         description_response = description_response[0]['name']
 
         openai_response = response_generation(description_response, prompt)
         if openai_response:
-            print(openai_response.choices[0].message.content)
+            # print(openai_response.choices[0].message.content)
             results = [{"name": openai_response, "url": url_response}]
             st.session_state.messages.append({"role": "assistant", "image": url_response, "content": openai_response.choices[0].message.content})
 
