@@ -113,7 +113,7 @@ def search():
     url = image_url,
     k_nearest_neighbors=5,
     fields="imageVector",
-    weight=100,
+    # weight=100,
     )
 
     # Perform the search
