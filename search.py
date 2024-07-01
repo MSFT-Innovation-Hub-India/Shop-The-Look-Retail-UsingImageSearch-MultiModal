@@ -118,7 +118,7 @@ def search():
 
     # Perform the search
     results = search_client.search(
-        search_text=None, vector_queries=[text_vector_query, image_vector_query], top=3
+        search_text=None, vector_queries=[text_vector_query, image_vector_query, text_image_vector_query], top=3
     )
 
     response = []
@@ -130,10 +130,10 @@ def search():
         })
         
         # Print each result
-        print(f"Name: {result['description']}")
-        print(f"Score: {result['@search.score']}")
-        print(f"URL: {result['img']}")
-        print("-" * 50)
+        # print(f"Name: {result['description']}")
+        # print(f"Score: {result['@search.score']}")
+        # print(f"URL: {result['img']}")
+        # print("-" * 50)
 
     return jsonify(response)
 
