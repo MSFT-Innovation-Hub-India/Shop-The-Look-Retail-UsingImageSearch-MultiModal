@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import uuid
 from response_generation import *
 import requests
+from intent_identification import *
 
 # Load environment variables from .env file
 load_dotenv(".env")
@@ -96,9 +97,9 @@ if prompt := st.chat_input("How can I help?"):
 
         #################################################### 
 
-        
+        intent_result = identify_intent(prompt, image_url)
 
-        params = {'image_url': image_url, 'text_query': prompt}
+        params = {'image_url': image_url, 'text_query': intent_result}
         search_response = requests.post("http://localhost:8080/search", json=params)
         
         # Check if the request was successful
