@@ -20,6 +20,8 @@ A Generative AI powered solution that implements Shop the Look capabilities for 
 
 **Azure Services:** Azure AI Search, Azure OpenAI, Azure AI Vision
 
+**Deployment:** Azure App Service
+
 
 ## Environment Variables
 
@@ -49,3 +51,7 @@ To run this project, you will need to add the following environment variables to
 ## Authors
 
 - [@goy4l](https://www.github.com/goy4l)
+- [@ashwinchandra08](https://www.github.com/ashwinchandra08)
+- [@tanishqatp](https://www.github.com/tanishqatp)
+- [@YohanTheNohan](https://www.github.com/YohanTheNohan)
+- [@AutisticCoder-9000](https://github.com/AutisticCoder-9000)
