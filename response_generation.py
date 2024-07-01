@@ -55,6 +55,7 @@ def response_generation(response_json, prompt):
                 messages=[
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": prompt},
+                    {"role": "user", "content": response_json},
                     {"role": "assistant", "content": response_json}     
                 ]
             )
