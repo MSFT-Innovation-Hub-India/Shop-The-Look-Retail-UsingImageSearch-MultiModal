@@ -26,7 +26,7 @@ if "results" not in st.session_state:
     st.session_state.results = []
 
 with st.sidebar:
-    st.header('Result History')
+    st.header('Results')
     for result in st.session_state.results:
         st.image(result['url'], width=300)
 
@@ -96,6 +96,8 @@ if prompt := st.chat_input("How can I help?"):
 
         #################################################### 
 
+        
+
         params = {'image_url': image_url, 'text_query': prompt}
         search_response = requests.post("http://localhost:8080/search", json=params)
         
@@ -105,30 +107,44 @@ if prompt := st.chat_input("How can I help?"):
         # Print the response from the server
         description_response = search_response.json()
         print(description_response)
-        url_response = description_response[0]['url']
-        # url_response = description_response[0]['img']
-        description_response = description_response[0]['name']
+        for i in range(0,3):
+            url_response = description_response[i]['url']
+            # url_response = description_response[0]['img']
+            description_response_at_i = description_response[i]['name']
 
-        openai_response = response_generation(description_response, prompt)
-        if openai_response:
-            # print(openai_response.choices[0].message.content)
-            results = [{"name": openai_response, "url": url_response}]
-            st.session_state.messages.append({"role": "assistant", "image": url_response, "content": openai_response.choices[0].message.content})
+            openai_response = response_generation(description_response_at_i, prompt)
+            if openai_response:
+                # print(openai_response.choices[0].message.content)
+                results = [{"name": openai_response, "url": url_response}]
+                st.session_state.messages.append({"role": "assistant", "image": url_response, "content": openai_response.choices[0].message.content})
 
-            with c.chat_message("assistant"):
-                for result in results:
-                    # st.write(f"Name: {result['name']}")
+                with c.chat_message("assistant"):
+                    st.image(results[0]['url'], width=200)
                     st.write(openai_response.choices[0].message.content)
-                    st.image(result['url'], width=250)
-                    # st.write(f"URL: {result['url']}")
-                    # st.write("-" * 50)
+                    # col1, col2, col3 = st.columns(3)
+                    # for i, result in enumerate(results):
+                    #     if(i == 0):
+                    #         # with col1:
+                    #             st.image(result['url'], width=200)
+                    #             st.write(openai_response.choices[i].message.content)
+                    #     elif(i == 1):
+                    #         # with col2:
+                    #             st.image(result['url'], width=200)
+                    #             st.write(openai_response.choices[i].message.content)
+                    #     elif(i == 2):
+                    #         # with col3:
+                    #             st.image(result['url'], width=200)
+                    #             st.write(openai_response.choices[i].message.content)
+                        # st.write(f"Name: {result['name']}")
+                        # st.write(f"URL: {result['url']}")
+                        # st.write("-" * 50)
 
-            # Append the new results to the results history
-            st.session_state.results.extend(results)
-        else:
-            st.session_state.messages.append({"role": "assistant", "content": "No results returned.", "results": []})
-            with c.chat_message("assistant"):
-                st.markdown("No results returned.")
+                # Append the new results to the results history
+                st.session_state.results.extend(results)
+            else:
+                st.session_state.messages.append({"role": "assistant", "content": "No results returned.", "results": []})
+                with c.chat_message("assistant"):
+                    st.markdown("No results returned.")
 
     else:
         st.session_state.messages.append({"role": "user", "content": prompt, "image": None})
