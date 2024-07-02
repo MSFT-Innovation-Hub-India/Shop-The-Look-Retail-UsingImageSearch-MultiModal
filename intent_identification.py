@@ -26,7 +26,10 @@ def identify_intent(user_text, img_url):
             messages=[
                 { "role": "system", "content": "You are an expert in fashion design. Based on the users intent,\
                 generate a prompt that would be useful as a search query in a vector database. Unless otherwise specified, provide details \
-                of color, style and material. Provide these details in 5 or more bullet points"},
+                of color, style and material. Provide these details in 5 or more bullet points. \
+                Provide only the search parameters in your response. Do not say things such as 'Certainly' or 'Here are the details you requested' \
+                If the user asks for a specific parameter, only mention what the parameter is and not where it came from. For example, if the user asks for the color \
+                of a red tshirt, only return red, and not red tshirt"},
 
                 { "role": "user", "content": [  
                     { 
@@ -43,8 +46,7 @@ def identify_intent(user_text, img_url):
                 {
                     "role": "assistant",
                     "content":
-                        "Red women's shirt with ruffled and asymmetric hem, tie-front design, sleeveless, flowy fabric\
-                         - Category: Women's Shirt \
+                        "- Category: Women's Shirt \
                          - Style: Halter neck \
                          - Style: Sleeveless \
                          - Color: Bright Red \
