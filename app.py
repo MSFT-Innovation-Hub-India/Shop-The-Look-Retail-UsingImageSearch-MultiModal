@@ -133,23 +133,40 @@ if prompt := st.chat_input("How can I help?"):
     print("################################")
     
     if intent_result != "This is a follow up":
+        new_objects = []
+        st.session_state.url_responses = []
         for i in range(0,3):
-            url_response = description_response[i]['url']
+            st.session_state.url_responses.append(description_response[i]['url'])
             # url_response = description_response[0]['img']
-            description_response_at_i = description_response[i]['name']
+            # description_response_at_i = description_response[i]['name']
 
-            openai_response = response_generation(description_response_at_i, prompt)
-            if openai_response:
-                # print(openai_response.choices[0].message.content)
-                results = [{"name": openai_response, "url": url_response}]
-                st.session_state.messages.append({"role": "assistant", "image": url_response, "content": openai_response.choices[0].message.content})
-
-                with c.chat_message("assistant"):
-                    st.image(results[0]['url'], width=200)
-                    st.write(openai_response.choices[0].message.content)
-
-                # Append the new results to the results history
+            # openai_response = response_generation(description_response_at_i, prompt)
+            description_response_new = {
+                'name': description_response[i]['name']
+            }
+        
+            new_objects.append(description_response_new)
+        
+        json_new_objects = json.dumps(new_objects)
+        openai_response = response_generation(json_new_objects, prompt)
+        if openai_response:
+            # print(openai_response.choices[0].message.content)
+            for i in range(len(st.session_state.url_responses)):
+                results = [{"name": None, "url": st.session_state.url_responses[i]}]
                 st.session_state.results.extend(results)
+            # results = [{"name": openai_response, "url": url_responses}]
+            st.session_state.messages.append({"role": "assistant", "content": openai_response.choices[0].message.content, "images": st.session_state.url_responses})
+
+            with c.chat_message("assistant"):
+                # st.image(results[0]['url'], width=200)
+                st.write(openai_response.choices[0].message.content)
+                cols = st.columns(3)
+                for i in range(3):
+                    with cols[i % 3]:
+                        st.image(st.session_state.url_responses[i], width=200)
+
+            # Append the new results to the results history
+            st.session_state.results.extend(results)
                 
     else:
         new_objects = []

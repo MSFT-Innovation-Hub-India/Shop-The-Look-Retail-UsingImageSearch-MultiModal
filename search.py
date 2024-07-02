@@ -135,10 +135,10 @@ def search():
         })
         
         # Print each result
-        # print(f"Name: {result['description']}")
-        # print(f"Score: {result['@search.score']}")
-        # print(f"URL: {result['img']}")
-        # print("-" * 50)
+        print(f"Name: {result['description']}")
+        print(f"Score: {result['@search.score']}")
+        print(f"URL: {result['img']}")
+        print("-" * 50)
 
     return jsonify(response)
 
