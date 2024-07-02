@@ -87,7 +87,7 @@ for message in st.session_state.messages:
                 st.write("-" * 50)
                 
 if 'search_response' not in st.session_state:
-    search_response = None
+    st.session_state.search_response = None
 
 def update_search_response(params, force_update=False):
     global search_response
