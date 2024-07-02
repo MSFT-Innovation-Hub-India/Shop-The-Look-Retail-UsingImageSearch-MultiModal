@@ -90,8 +90,8 @@ def search():
     print(f"Received text query: {text_query}")
     print(f"Received image URL: {image_url}")
 
-    if not text_query or not image_url:
-        return jsonify({"error": "Both text_query and image_url are required"}), 400
+    # if not text_query or not image_url:
+    #     return jsonify({"error": "Both text_query and image_url are required"}), 400
 
     text_vector_query = VectorizableTextQuery(
     text=text_query,
@@ -107,19 +107,24 @@ def search():
     )
 
 # Define the image query
-    image_vector_query = VectorizableImageUrlQuery(  # Alternatively, use VectorizableImageBinaryQuery
-    # url="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",  # Image of a Red Nike Running Shoe
-    # url = "https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/18198270/2022/7/12/282737f5-b38e-4c6e-89ad-745630638d3c1657628613069-Biba-Women-Kurtas-9431657628612606-4.jpg",
-    url = image_url,
-    k_nearest_neighbors=5,
-    fields="imageVector",
-    # weight=100,
-    )
+    if image_url is not None:
+        image_vector_query = VectorizableImageUrlQuery(  # Alternatively, use VectorizableImageBinaryQuery
+        # url="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",  # Image of a Red Nike Running Shoe
+        # url = "https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/18198270/2022/7/12/282737f5-b38e-4c6e-89ad-745630638d3c1657628613069-Biba-Women-Kurtas-9431657628612606-4.jpg",
+        url = image_url,
+        k_nearest_neighbors=5,
+        fields="imageVector",
+        # weight=100,
+        )
 
-    # Perform the search
-    results = search_client.search(
-        search_text=None, vector_queries=[text_vector_query, image_vector_query, text_image_vector_query], top=3
-    )
+        # Perform the search
+        results = search_client.search(
+            search_text=None, vector_queries=[text_vector_query, image_vector_query, text_image_vector_query], top=3
+        )
+    else:
+        results = search_client.search(
+            search_text=None, vector_queries=[text_vector_query, text_image_vector_query], top=3
+        )
 
     response = []
     for result in results:

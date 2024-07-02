@@ -30,8 +30,11 @@ def response_generation(response_json, prompt):
         #     """
 
         system_message = """You are a fashion assistant which provides the user an enticing fashion suggestion,
-        based on their request and the description of the suggested clothing item. 
-        You may provide only relevant attributes from the JSON data and answer the users request in a conversational manner. Do not provide follow-up questions or ask for additional information."""
+        based on their request and the description of the suggested clothing item. You are given the user prompt as context. \
+        You must use the user prompt only to make the result conversational. The remainder of the response must be based on the description of the suggested clothing item. \
+        Assume this description data is the fashion suggestion, so you do not have to suggest new clothing items. 
+        You may provide only relevant attributes from the description data and answer the users request in a conversational manner.
+        Do not give bullet points unless specifically asked. Provide a conversational and enticing paragraph description"""
         
         while True:
             # Read the response from the JSON file
@@ -48,24 +51,29 @@ def response_generation(response_json, prompt):
             
              # Add code to send request...
             # Send request to Azure OpenAI model
-            response = client.chat.completions.create(
-                model=azure_oai_deployment,
-                temperature=0.4,
-                max_tokens=4096,
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": prompt},
-                    {"role": "user", "content": response_json},
-                    {"role": "assistant", "content": response_json}     
-                ]
-            )
-            
-            # print(response)
-            generated_text = response.choices[0].message.content
-
-            # Print the response
-            # print(generated_text + "\n")
-            #print(response.model_dump_json(indent=2))
+            if response_json is not None:
+                response = client.chat.completions.create(
+                    model=azure_oai_deployment,
+                    temperature=0.4,
+                    max_tokens=4096,
+                    messages=[
+                        {"role": "system", "content": system_message},
+                        {"role": "user", "content": prompt},
+                        # {"role": "user", "content": response_json},
+                        {"role": "assistant", "content": response_json}     
+                    ]
+                )
+                
+            else:
+                response = client.chat.completions.create(
+                    model=azure_oai_deployment,
+                    temperature=0.4,
+                    max_tokens=4096,
+                    messages=[
+                        {"role": "system", "content": system_message},
+                        {"role": "user", "content": prompt},    
+                    ]
+                )
             
             return response
 

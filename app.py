@@ -8,6 +8,8 @@ from response_generation import *
 import requests
 from intent_identification import *
 
+# st.set_page_config(layout="wide")
+
 # Load environment variables from .env file
 load_dotenv(".env")
 
@@ -28,8 +30,6 @@ if "results" not in st.session_state:
 
 with st.sidebar:
     st.header('Results')
-    for result in st.session_state.results:
-        st.image(result['url'], width=300)
 
 c = st.container(height=550)
 
@@ -85,29 +85,54 @@ for message in st.session_state.messages:
                 st.write(f"Name: {result['name']}")
                 st.write(f"URL: {result['url']}")
                 st.write("-" * 50)
+                
+if 'search_response' not in st.session_state:
+    search_response = None
 
-# React to user input
+def update_search_response(params, force_update=False):
+    global search_response
+    # Only update search_response if it is None or force_update is True
+    if st.session_state.search_response is None or force_update:
+        st.session_state.search_response = requests.post("http://localhost:8080/search", json=params)
+
+
 if prompt := st.chat_input("How can I help?"):
-    if image_url is not None:
-        st.session_state.messages.append({"role": "user", "content": prompt, "image": image_url})
+    st.session_state.messages.append({"role": "user", "content": prompt, "image": image_url})
 
-        with c.chat_message("user"):
-            st.markdown(prompt)
+    with c.chat_message("user"):
+        st.markdown(prompt)
+        if image_url is not None:
             st.image(image_url, width=200)
 
-        #################################################### 
+    #################################################### 
 
-        intent_result = identify_intent(prompt, image_url)
-
-        params = {'image_url': image_url, 'text_query': intent_result}
-        search_response = requests.post("http://localhost:8080/search", json=params)
+    intent_result = identify_intent(prompt, image_url)
+    print(intent_result)
+    
+    
+    if intent_result != "This is a follow up":
+        force_update = True
+    else:
+        force_update = False
         
-        # Check if the request was successful
-        search_response.raise_for_status()
+    print(force_update)
+        
+    params = {'image_url': image_url, 'text_query': intent_result}
+    update_search_response(params, force_update)
+    
+    print("**********************")
+    print(st.session_state.search_response.json()[0]['name'])
+    print("**********************")
 
-        # Print the response from the server
-        description_response = search_response.json()
-        print(description_response)
+    # Check if the request was successful   
+    st.session_state.search_response.raise_for_status()
+
+    # Print the response from the server
+    description_response = st.session_state.search_response.json()
+    # print(description_response)
+    print("################################")
+    
+    if intent_result != "This is a follow up":
         for i in range(0,3):
             url_response = description_response[i]['url']
             # url_response = description_response[0]['img']
@@ -122,36 +147,30 @@ if prompt := st.chat_input("How can I help?"):
                 with c.chat_message("assistant"):
                     st.image(results[0]['url'], width=200)
                     st.write(openai_response.choices[0].message.content)
-                    # col1, col2, col3 = st.columns(3)
-                    # for i, result in enumerate(results):
-                    #     if(i == 0):
-                    #         # with col1:
-                    #             st.image(result['url'], width=200)
-                    #             st.write(openai_response.choices[i].message.content)
-                    #     elif(i == 1):
-                    #         # with col2:
-                    #             st.image(result['url'], width=200)
-                    #             st.write(openai_response.choices[i].message.content)
-                    #     elif(i == 2):
-                    #         # with col3:
-                    #             st.image(result['url'], width=200)
-                    #             st.write(openai_response.choices[i].message.content)
-                        # st.write(f"Name: {result['name']}")
-                        # st.write(f"URL: {result['url']}")
-                        # st.write("-" * 50)
 
                 # Append the new results to the results history
                 st.session_state.results.extend(results)
-            else:
-                st.session_state.messages.append({"role": "assistant", "content": "No results returned.", "results": []})
-                with c.chat_message("assistant"):
-                    st.markdown("No results returned.")
-
+                
     else:
-        st.session_state.messages.append({"role": "user", "content": prompt, "image": None})
-        with c.chat_message("user"):
-            st.markdown(prompt)
+        openai_response = response_generation(description_response[0]['name'], prompt)
+        
+        if openai_response:
+            # print(openai_response.choices[0].message.content)
+            results = [{"name": openai_response, "url": None}]
+            st.session_state.messages.append({"role": "assistant", "image": None, "content": openai_response.choices[0].message.content})
 
-        st.session_state.messages.append({"role": "assistant", "content": "No image provided. Please upload an image to get results.", "results": []})
-        with c.chat_message("assistant"):
-            st.markdown("No image provided. Please upload an image to get results.")
+            with c.chat_message("assistant"):
+                # st.image(results[0]['url'], width=200)
+                st.write(openai_response.choices[0].message.content)
+
+            # Append the new results to the results history
+            st.session_state.results.extend(results)
+        
+with st.sidebar:
+    num_results = len(st.session_state.results)
+    if num_results > 0:
+        cols = st.columns(3)
+        for i, result in enumerate(st.session_state.results):
+            with cols[i % 3]:
+                if result["url"]:
+                    st.image(result["url"], width=100)
