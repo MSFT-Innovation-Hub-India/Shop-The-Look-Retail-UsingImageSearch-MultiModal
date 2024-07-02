@@ -51,7 +51,8 @@ def identify_intent(user_text, img_url):
                     The prompt may be a follow up to previous search result or a completely new question. Any questions about the material or style can be considered\
                     a follow up question. For example 'What is the material of the first result?' Any question asking for a new item to be searched \
                     can be considered a new question. For example 'Find me a dress for summer in yellow color.' \
-                    If it is a new question, generate a prompt that would be useful in a vector search, providing all relevant details from the prompt. \
+                    If it is a new question, generate a prompt that would be useful in a vector search, providing all relevant details such as color, style, fabric from the prompt. \
+                    Provide these details in bullet points. \
                     If it is a follow up question, return the following statement exactly: \"This is a follow up\""},
 
                 { "role": "user", "content": [  
