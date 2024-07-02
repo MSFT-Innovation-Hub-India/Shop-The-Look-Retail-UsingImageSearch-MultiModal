@@ -107,7 +107,7 @@ if prompt := st.chat_input("How can I help?"):
     #################################################### 
 
     intent_result = identify_intent(prompt, image_url)
-    print(intent_result)
+    # print(intent_result)
     
     
     if intent_result != "This is a follow up":
@@ -115,14 +115,14 @@ if prompt := st.chat_input("How can I help?"):
     else:
         force_update = False
         
-    print(force_update)
+    # print(force_update)
         
     params = {'image_url': image_url, 'text_query': intent_result}
     update_search_response(params, force_update)
     
-    print("**********************")
-    print(st.session_state.search_response.json()[0]['name'])
-    print("**********************")
+    # print("**********************")
+    # print(st.session_state.search_response.json()[0]['name'])
+    # print("**********************")
 
     # Check if the request was successful   
     st.session_state.search_response.raise_for_status()
@@ -152,7 +152,19 @@ if prompt := st.chat_input("How can I help?"):
                 st.session_state.results.extend(results)
                 
     else:
-        openai_response = response_generation(description_response[0]['name'], prompt)
+        new_objects = []
+        for i in range(0,3):
+            description_response_new = {
+                'name': description_response[i]['name']
+            }
+        
+            new_objects.append(description_response_new)
+        
+        json_new_objects = json.dumps(new_objects)
+            
+        # print(json_new_objects)
+        # print("################################")
+        openai_response = response_generation(json_new_objects, prompt)
         
         if openai_response:
             # print(openai_response.choices[0].message.content)
