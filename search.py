@@ -103,7 +103,7 @@ def search():
     text=text_query,
     k_nearest_neighbors=5,
     fields="imageVector",
-    # weight=100,
+    weight=50,
     )
 
 # Define the image query
