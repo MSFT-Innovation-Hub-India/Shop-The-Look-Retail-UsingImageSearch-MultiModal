@@ -35,8 +35,9 @@ background-color: #131720;
 
 </style>
 """""
+st.warning('WARNING: This is a pre-production version. Certain functionality may be limited. Use with caution', icon="⚠️")
 
-st.markdown(page_bg_img, unsafe_allow_html=True)
+# st.markdown(page_bg_img, unsafe_allow_html=True)
 
 # Load environment variables from .env file
 load_dotenv(".env")
@@ -46,7 +47,7 @@ connect_str = os.getenv("BLOB_CONNECTION_STRING")
 container_name = os.getenv("BLOB_CONTAINER_NAME_IMG")
 blob_service_client = BlobServiceClient.from_connection_string(connect_str)
 
-st.title("🛍 Shop the Look")
+st.title("🛍️ Shop the Look")
 st.caption("Upload an image and find similar items in our catalog")
 
 # Initialize chat history and result history
@@ -65,7 +66,7 @@ if "intents" not in st.session_state:
 with st.sidebar:
     st.header('Results')
 
-c = st.container(height=550)
+c = st.container(height=350)
 
 uploaded_file = st.file_uploader("Upload your image...", type=["jpg", "jpeg", "png"])
 
