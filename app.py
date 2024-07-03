@@ -10,6 +10,32 @@ from intent_identification import *
 
 # st.set_page_config(layout="wide")
 
+page_bg_img = """
+<style>
+[data-testid="stApp"]{
+background-image:url("https://stlprojectstorage.blob.core.windows.net/image/905278a023454f5fabe0f480c0edd51c.jpg?se=2024-07-03T11%3A45%3A45Z&sp=r&sv=2024-05-04&sr=b&sig=kuBU4haLs8ZoL4yEcgiJEqFv4MGxl4CZUY1Tns0Q78k%3D");
+background-size: cover;
+}
+
+[data-testid="stHeader"]{
+background-color: rgba(0,0,0,0);
+}
+
+[data-testid="stverticalBlockBorderwrapper"] {
+    background-color:
+}
+
+[data-testid="stSidebar"]{
+background-color: #131720;
+}
+
+[data-testid="stChatMessage"]{
+background-color: #131720;
+}
+
+</style>
+"""""
+
 # Load environment variables from .env file
 load_dotenv(".env")
 
