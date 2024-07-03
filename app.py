@@ -27,6 +27,12 @@ if "messages" not in st.session_state:
 
 if "results" not in st.session_state:
     st.session_state.results = []
+    
+if "prompts" not in st.session_state:
+    st.session_state.prompts = []
+    
+if "intents" not in st.session_state:
+    st.session_state.intents = []
 
 with st.sidebar:
     st.header('Results')
@@ -100,9 +106,9 @@ def update_search_response(params, force_update=False):
     # Only update search_response if it is None or force_update is True
     if st.session_state.search_response is None or force_update:
         st.session_state.search_response = requests.post("http://localhost:8080/search", json=params)
-
-
+        
 if prompt := st.chat_input("How can I help?"):
+    st.session_state.prompts.append(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt, "image": image_url})
 
     with c.chat_message("user"):
@@ -112,8 +118,9 @@ if prompt := st.chat_input("How can I help?"):
 
     #################################################### 
 
-    intent_result = identify_intent(prompt, image_url)
-    # print(intent_result)
+    intent_result = identify_intent(prompt, image_url, json.dumps(st.session_state.prompts), json.dumps(st.session_state.intents))
+    st.session_state.intents.append(intent_result)
+    print(intent_result)
     
     
     if intent_result != "This is a follow up":
@@ -154,6 +161,8 @@ if prompt := st.chat_input("How can I help?"):
             new_objects.append(description_response_new)
         
         json_new_objects = json.dumps(new_objects)
+        print(json_new_objects)
+        print("*********************")
         openai_response = response_generation(json_new_objects, prompt)
         if openai_response:
             # print(openai_response.choices[0].message.content)

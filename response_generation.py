@@ -61,8 +61,17 @@ def response_generation(response_json, prompt):
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": prompt},
                         # {"role": "user", "content": response_json},
-                        {"role": "assistant", "content": response_json}     
-                    ]
+                        {"role": "assistant", "content": response_json} ,
+                        {"role": "assistant", "content": '''You're going to have such a fabulous time in Paris! Let's make sure your outfits are as picturesque as the city itself.
+
+                        First, consider a stylish casual pullover hoodie that screams Parisian chic. Made from soft polyester fabric with a knitted weave, this hoodie is both cozy and trendy. The hooded neckline with contrasting black drawstrings adds a touch of flair, while the cropped length and straight hemline make it perfect for layering. The typography print "C'est La Vie Paris" on the front is the ultimate nod to your Parisian adventure. Pair this with your favorite jeans or a cute skirt for a casual yet stylish look that's perfect for exploring the city and snapping some Instagram-worthy photos.
+
+                        For a laid-back yet fashionable look, these high-rise denim shorts are a must-have. Crafted from durable cotton in a trendy indigo hue, they feature a fashionable washed pattern and a practical 5-pocket configuration. The high-rise waist is flattering and perfect for pairing with tucked-in tops or cropped tees. These shorts are ideal for a casual day out, whether you're strolling along the Seine or enjoying a café au lait at a charming bistro. Plus, they're easy to care for, so you can focus on enjoying your trip.
+
+                        Lastly, elevate your casual wardrobe with a stylish tiered skirt made from luxurious polyester net fabric. This knee-length, flared design with a solid color and semi-sheer, gathered surface gives it a trendy, layered look. Perfect for a day out with friends or a relaxed city stroll, this skirt pairs beautifully with funky acrylic earrings, art deco sandals, and square sunglasses with thick frames. It's a chic ensemble that will make you feel like a true Parisian fashionista.
+
+                        With these outfits, you'll be ready to capture the essence of Paris in every photo! Enjoy your trip and make sure to take lots of cute pictures!  '''
+                        }]
                 )
                 
             else:
