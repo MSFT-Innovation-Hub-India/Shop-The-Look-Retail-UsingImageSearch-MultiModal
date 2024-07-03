@@ -13,7 +13,7 @@ from intent_identification import *
 page_bg_img = """
 <style>
 [data-testid="stApp"]{
-background-image:url("https://stlprojectstorage.blob.core.windows.net/image/905278a023454f5fabe0f480c0edd51c.jpg?se=2024-07-03T11%3A45%3A45Z&sp=r&sv=2024-05-04&sr=b&sig=kuBU4haLs8ZoL4yEcgiJEqFv4MGxl4CZUY1Tns0Q78k%3D");
+background-image:url("https://img.freepik.com/free-photo/fast-fashion-concept-with-full-clothing-store_23-2150871356.jpg?t=st=1719991133~exp=1719994733~hmac=f0d67abb390e0274cdde616a37f30f7a5658e0d6d5d793ec970df4fee8fa1b83&w=2000");
 background-size: cover;
 }
 
