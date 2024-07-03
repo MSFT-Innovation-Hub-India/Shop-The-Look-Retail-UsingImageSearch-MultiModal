@@ -27,11 +27,17 @@ if "messages" not in st.session_state:
 
 if "results" not in st.session_state:
     st.session_state.results = []
+    
+if "prompts" not in st.session_state:
+    st.session_state.prompts = []
+    
+if "intents" not in st.session_state:
+    st.session_state.intents = []
 
-with st.sidebar:
-    st.header('Results')
+# with st.sidebar:
+#     st.header('Results')
 
-c = st.container(height=550)
+c = st.container()
 
 uploaded_file = st.file_uploader("Upload your image...", type=["jpg", "jpeg", "png"])
 
@@ -76,14 +82,6 @@ def from_mic(speech_config):
     
     if result.reason == speechsdk.ResultReason.RecognizedSpeech:
         print("Recognized: {}".format(result.text))
-    # elif result.reason == speechsdk.ResultReason.NoMatch:
-    #     print("No speech could be recognized: {}".format(result.no_match_details))
-    # elif result.reason == speechsdk.ResultReason.Canceled:
-    #     cancellation_details = result.cancellation_details
-    #     print("Speech Recognition canceled: {}".format(cancellation_details.reason))
-    # if cancellation_details.reason == speechsdk.CancellationReason.Error:
-    #     print("Error details: {}".format(cancellation_details.error_details))
-    #     print("Did you set the speech resource key and region values?")
     
     return result.text
 
@@ -96,41 +94,50 @@ def update_search_response(params, force_update=False):
     # Only update search_response if it is None or force_update is True
     if st.session_state.search_response is None or force_update:
         st.session_state.search_response = requests.post("http://localhost:8080/search", json=params)
-        
+    
 st.session_state.prompt = None
         
 if st.button(label="Click here and start speaking"):
-    st.session_state.prompt = from_mic(speech_config)
-    st.write("I'm done! Here's the prompt", st.session_state.prompt)
-if st.session_state.prompt:
+    with st.spinner('Listening...'):
+        st.session_state.prompt = from_mic(speech_config)
+    st.write("I'm done listening! Here's what I heard: ", st.session_state.prompt)
     
-    prompt = st.session_state.prompt
+# if 'speak_flag' not in st.session_state:
+#     st.session_state.speak_flag = 0
+    
+# if st.button(label="Stop Response"):
+#     st.session_state.speak_flag = 1
 
-    intent_result = identify_intent(prompt, image_url)
+if st.session_state.prompt:    
+    prompt = st.session_state.prompt
+    st.session_state.prompts.append(prompt)
+    
+    with st.spinner('Finding you the best results...'):
+        intent_result = identify_intent(prompt, image_url, json.dumps(st.session_state.prompts), json.dumps(st.session_state.intents))
+        st.session_state.intents.append(intent_result)
     # print(intent_result)
     
     
-    if intent_result != "This is a follow up":
-        force_update = True
-    else:
-        force_update = False
+        if intent_result != "This is a follow up":
+            force_update = True
+        else:
+            force_update = False
+            
+        # print(force_update)
+        params = {'image_url': image_url, 'text_query': intent_result}
+        update_search_response(params, force_update)
         
-    # print(force_update)
-        
-    params = {'image_url': image_url, 'text_query': intent_result}
-    update_search_response(params, force_update)
-    
-    # print("**********************")
-    # print(st.session_state.search_response.json()[0]['name'])
-    # print("**********************")
+        # print("**********************")
+        # print(st.session_state.search_response.json()[0]['name'])
+        # print("**********************")
 
-    # Check if the request was successful   
-    st.session_state.search_response.raise_for_status()
+        # Check if the request was successful   
+        st.session_state.search_response.raise_for_status()
 
-    # Print the response from the server
-    description_response = st.session_state.search_response.json()
-    # print(description_response)
-    print("################################")
+        # Print the response from the server
+        description_response = st.session_state.search_response.json()
+        # print(description_response)
+        print("################################")
     
     if intent_result != "This is a follow up":
         new_objects = []
@@ -157,15 +164,16 @@ if st.session_state.prompt:
             results = [{"name": openai_response, "url": url_responses}]
             # st.session_state.messages.append({"role": "assistant", "content": openai_response.choices[0].message.content, "images": st.session_state.url_responses})
 
-            # with c.chat_message("assistant"):
-            #     # st.image(results[0]['url'], width=200)
+            with c.chat_message("assistant"):
+                # st.image(results[0]['url'], width=200)
             #     st.write(openai_response.choices[0].message.content)
-            #     cols = st.columns(3)
-            #     for i in range(3):
-            #         with cols[i % 3]:
-            #             st.image(url_responses[i], width=200)
-            
-            speech_synthesis_result = speech_synthesizer.speak_text_async(openai_response.choices[0].message.content).get()
+                cols = st.columns(3)
+                for i in range(3):
+                    with cols[i % 3]:
+                        st.image(url_responses[i], width=200)
+
+            speech_synthesis_result = speech_synthesizer.start_speaking_text_async(openai_response.choices[0].message.content).get()
+                
 
             # Append the new results to the results history
             # st.session_state.messages.append({"role": "assistant", "content": openai_response.choices[0].message.content, "images": url_responses})
@@ -200,11 +208,11 @@ if st.session_state.prompt:
             # Append the new results to the results history
             # st.session_state.results.extend(results)
         
-with st.sidebar:
-    num_results = len(st.session_state.results)
-    if num_results > 0:
-        cols = st.columns(3)
-        for i, result in enumerate(st.session_state.results):
-            with cols[i % 3]:
-                if result["url"]:
-                    st.image(result["url"], width=100)
+# with st.sidebar:
+#     num_results = len(st.session_state.results)
+#     if num_results > 0:
+#         cols = st.columns(3)
+#         for i, result in enumerate(st.session_state.results):
+#             with cols[i % 3]:
+#                 if result["url"]:
+#                     st.image(result["url"], width=100)

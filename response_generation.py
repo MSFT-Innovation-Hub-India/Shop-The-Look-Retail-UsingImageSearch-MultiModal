@@ -35,7 +35,7 @@ def response_generation(response_json, prompt):
         Assume this description data is the fashion suggestion, so you do not have to suggest new clothing items. \
         If there are multiple items, describe each one in a separate paragraph.
         You may provide only relevant attributes from the description data and answer the users request in a conversational manner.
-        Do not give bullet points unless specifically asked. Provide a conversational and enticing paragraph description"""
+        Do not give bullet points unless specifically asked. Provide a conversational and enticing paragraph description. Provide a maximum of 3 sentence description in each paragraph"""
         
         while True:
             # Read the response from the JSON file
