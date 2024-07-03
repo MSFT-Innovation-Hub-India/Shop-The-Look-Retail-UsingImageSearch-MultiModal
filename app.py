@@ -36,6 +36,8 @@ background-color: #131720;
 </style>
 """""
 
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
 # Load environment variables from .env file
 load_dotenv(".env")
 
