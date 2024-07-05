@@ -19,7 +19,7 @@ container_name = os.getenv("BLOB_CONTAINER_NAME_IMG")
 blob_service_client = BlobServiceClient.from_connection_string(connect_str)
 speech_sub = os.getenv("AZURE_COMPUTER_VISION_KEY")
 
-st.title("🛍 Shop the Look")
+st.title("🛍️ Shop the Look")
 st.caption("Upload an image and find similar items in our catalog")
 
 if "messages" not in st.session_state:
