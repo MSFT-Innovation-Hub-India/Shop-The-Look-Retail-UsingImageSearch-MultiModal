@@ -31,3 +31,33 @@ body {
     text-wrap: balance;
   }
 }
+
+.image-animation-container {
+  position: fixed;
+  width: 100vw; /*Adjust based on your needs */
+  height: 100vh; /*Adjust based on your needs */
+  overflow: hidden;
+  z-index: -1;
+}
+
+.image-animation {
+  position: absolute;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  animation: imageSwitch 2s infinite;
+  transform: translateY(-100px);
+}
+
+.image1 {
+  animation-delay: -1s;
+}
+
+@keyframes imageSwitch {
+  0%, 89.999% {
+    opacity: 1;
+  }
+  90%, 100% {
+    opacity: 0;
+  }
+}
