@@ -14,7 +14,15 @@ export default function Speech() {
         revalidateIfStale: false,
     });
 
-    const apiReturnedTrue = data === "listening";
+    try {
+        const response = axios.post('http://127.0.0.1:5328/api/search', {
+          image_url: null,
+          text_query : data,
+          // add more data if needed
+        });
+      } catch (error) {
+        console.log(error);
+      }
 
     return (
         <div className={styles.imageContainer}>
