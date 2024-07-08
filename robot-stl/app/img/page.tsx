@@ -1,11 +1,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import styles from './Results.module.css'  // Assuming you have a CSS module
+import styles from './style.module.css'  // Assuming you have a CSS module
 
 export default function Results() {
     return (
       <div className={styles.imageContainer}>
-        <Link href="/details">
+        <Link href="/info">
           <Image
             src="/one.jpg"
             width={500}
@@ -13,7 +13,7 @@ export default function Results() {
             alt="Picture of the author"
           />
         </Link>
-        <Link href="/details">
+        <Link href="/info">
           <Image
             src="/two.jpg"
             width={500}
@@ -21,7 +21,7 @@ export default function Results() {
             alt="Picture of the author"
           />
         </Link>
-        <Link href="/details">
+        <Link href="/info">
           <Image
             src="/three.jpg"
             width={500}

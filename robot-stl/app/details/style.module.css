@@ -1,0 +1,21 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .textcontainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-left: 400px;
+    padding-right: 400px;
+  }
+
+  .imageContainer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-top: 100px;
+  }
