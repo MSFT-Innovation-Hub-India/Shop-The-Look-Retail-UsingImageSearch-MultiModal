@@ -1,0 +1,26 @@
+version: '3.8'
+include:
+  - search-service.yaml
+services:
+  image_upload:
+    build:
+      context: ./image_upload
+      dockerfile: Dockerfile
+    ports:
+      - "5003:5003"
+    restart: always
+    env_file:
+      - ./image_upload/.env
+    volumes:
+      - ./image_upload:/app  # Mount the local streamlit directory to the /app directory in the container
+  openai:
+    build:
+      context: ./openai
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    restart: always
+    env_file:
+      - ./openai/.env
+    volumes:
+      - ./openai:/app  # Mount the local streamlit directory to the /app directory in the container
