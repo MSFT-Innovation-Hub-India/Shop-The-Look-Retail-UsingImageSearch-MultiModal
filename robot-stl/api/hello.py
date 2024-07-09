@@ -153,9 +153,21 @@ def listen():
     if result.reason == speechsdk.ResultReason.RecognizedSpeech:
         print("Recognized: {}".format(result.text))
 
-    identified_intent = identify_intent(result.text, None, None, None)
+    identified_intent = identify_intent(result.text)
 
     return identified_intent
+
+@app.route('/api/speak', methods=['POST'])
+def speak():
+    data = request.get_json()
+    text = data.get('text')
+    speech_config = speechsdk.SpeechConfig(subscription=speech_sub, region="northeurope")
+    audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=True)
+    speech_config.speech_synthesis_voice_name='en-US-AvaMultilingualNeural'
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
+    
+    speech_synthesizer_result = speech_synthesizer.speak_text_async(text).get()
+    return "Spoken"
 
 @app.route('/api/search', methods = ['POST'])
 def search():
@@ -179,24 +191,9 @@ def search():
     weight=50,
     )
 
-    if image_url is not None:
-        image_vector_query = VectorizableImageUrlQuery(  # Alternatively, use VectorizableImageBinaryQuery
-        # url="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",  # Image of a Red Nike Running Shoe
-        # url = "https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/18198270/2022/7/12/282737f5-b38e-4c6e-89ad-745630638d3c1657628613069-Biba-Women-Kurtas-9431657628612606-4.jpg",
-        url = image_url,
-        k_nearest_neighbors=5,
-        fields="imageVector",
-        # weight=100,
-        )
-
-        # Perform the search
-        results = search_client.search(
-            search_text=None, vector_queries=[text_vector_query, image_vector_query, text_image_vector_query], top=3
-        )
-    else:
-        results = search_client.search(
-            search_text=None, vector_queries=[text_vector_query, text_image_vector_query], top=3
-        )
+    results = search_client.search(
+        search_text=None, vector_queries=[text_vector_query, text_image_vector_query], top=3
+    )
 
     response = []
     for result in results:

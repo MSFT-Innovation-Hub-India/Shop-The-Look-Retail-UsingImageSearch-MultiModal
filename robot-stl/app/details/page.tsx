@@ -1,14 +1,26 @@
+'use client'
 import Image from 'next/image';
 import styles from './style.module.css';
+import { useSearchParams } from 'next/navigation';
 
-interface ResultsProps {
-}
+export default function Results(){
+    const searchParams = useSearchParams();
+    const data = searchParams.get('item');
+    let jsonData = {"name": "", "url": ""};
+    
+    if (data == null) {
+        // Safe to use 'data' here
+        <div>Loading...</div>
+    }
+    else{
+        jsonData = JSON.parse(data);
+    }
 
-const Results: React.FC<ResultsProps> = ({}) => {
+
     return (
         <div className={styles.container}>
             <Image className={styles.imageContainer}
-                src="/one.jpg"
+                src={jsonData['url']}
                 width={450}
                 height={450}
                 alt="Picture of the author"
@@ -16,13 +28,9 @@ const Results: React.FC<ResultsProps> = ({}) => {
             <div className={styles.textcontainer} >
                 <h1>Product Details</h1>
                 <br />
-                <h2>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Neque deleniti nulla distinctio exercitationem 
-                    obcaecati mollitia magni voluptas, omnis quaerat consequatur illum voluptatum ratione voluptates ea molestias autem, tenetur nemo. 
-                    Sapiente?</h2>
+                <h2>{jsonData['name']}</h2>
             </div>
             
         </div>
     );
 }
-
-export default Results;

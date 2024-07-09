@@ -1,4 +1,5 @@
 module.exports = {
+    reactStrictMode: false,
     async rewrites() {
       return [
         {
@@ -7,4 +8,12 @@ module.exports = {
         },
       ]
     },
+    images: {
+        remotePatterns: [
+          {
+            protocol: 'http',
+            hostname: 'assets.myntassets.com',
+          },
+        ],
+      },
   }

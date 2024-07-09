@@ -19,8 +19,8 @@ export default function MyComponent() {
   const router = useRouter();
 
   // Handle error state
-  console.log(error)
-  console.log(data)
+  // console.log(error)
+  // console.log(data)
   // if (error) return <div>Failed to load</div>;
   // Handle loading state
   // if (!data) return <div>Loading...</div>;
