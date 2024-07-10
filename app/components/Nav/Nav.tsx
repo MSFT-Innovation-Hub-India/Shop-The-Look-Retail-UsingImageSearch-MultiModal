@@ -22,7 +22,7 @@ function Nav() {
     }, [])
 
     return (
-        <div className={`fixed w-full transition-all duration-500 ${header ? 'text-white bg-pink-950 py-2' : 'bg-pink-200 py-80'}`}>
+        <div className={`fixed w-full transition-all duration-500 ${header ? 'text-white bg-emerald-700 py-2' : 'bg-red-400 py-80'}`}>
             <div className='header flex w-80 mx-auto justify-between items-center'>
                 <div className='logo'>
                     <h2 className='text-4xl font-bold'>Shop the Look</h2>
