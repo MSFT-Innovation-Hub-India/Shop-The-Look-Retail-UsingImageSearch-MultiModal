@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image';
+import Head from 'next/head';
 import {useRouter} from 'next/navigation';
 import { useEffect } from 'react';
 import useSWR from 'swr';
@@ -34,6 +35,7 @@ export default function MyComponent() {
   // Render the images while waiting for the API to return true
   return (
         <div>
+          <title>Shop the Look</title>
           <main className="flex min-h-screen flex-col items-center justify-between p-24">
             <div className="image-animation-container">
               <Image src="/close.png" alt="Image 1" layout="fill" className="image-animation image1" />
