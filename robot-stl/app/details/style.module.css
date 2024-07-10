@@ -1,21 +1,39 @@
 .container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     gap: 20px;
+    width: 100vw;
+    height: 100vh;
   }
   
   .textcontainer {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding-left: 400px;
-    padding-right: 400px;
+    flex:1;
+    max-width: 50%;
+    padding-right: 50px;
   }
 
   .imageContainer {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 20px;
     padding-top: 100px;
+    flex:1;
+    max-width: 50%;
+    max-height: 100%;
+  }
+
+  .back_button { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    padding: 10px; 
+  }
+
+  .imageStyle {
+    width: 75%;
+    height: 75%;
   }

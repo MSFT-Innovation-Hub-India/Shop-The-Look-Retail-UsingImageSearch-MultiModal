@@ -3,6 +3,9 @@
     flex-direction: column;
     align-items: center;
     gap: 20px;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
   }
   
   .textcontainer {
@@ -15,6 +18,8 @@
     align-items: center;
     gap: 20px;
     padding-top: 100px;
+    height: 70vh;
+    width: auto;
   }
   
   .buttonsContainer {
@@ -35,4 +40,11 @@
   
   .button:hover {
     background-color: #202020; /* Light grey background on hover */
+  }
+
+  .back_button { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    padding: 10px; 
   }

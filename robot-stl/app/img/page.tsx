@@ -46,32 +46,6 @@ export default function Results() {
   }, [data])
 
     return (
-      // <div className={styles.imageContainer}>
-      //   <Link href="/info">
-      //     {/* <Image
-      //       src={jsonData[0]["url"]}
-      //       width={500}
-      //       height={500}
-      //       alt="Picture of the author"
-      //     /> */}
-      //   </Link>
-      //   <Link href="/info">
-      //     {/* <Image
-      //       src={data[1]}
-      //       width={500}
-      //       height={500}
-      //       alt="Picture of the author"
-      //     /> */}
-      //   </Link>
-      //   <Link href="/info">
-      //     {/* <Image
-      //       src={data[2]}
-      //       width={500}
-      //       height={500}
-      //       alt="Picture of the author"
-      //     /> */}
-      //   </Link>
-      // </div>
       <div className={styles.imageContainer}>
       {jsonData.map((item, index) => (
         <Link key={index} href={`/info?item=${encodeURIComponent(JSON.stringify(item))}`}>
