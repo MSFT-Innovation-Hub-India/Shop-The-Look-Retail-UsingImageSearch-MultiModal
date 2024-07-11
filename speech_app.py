@@ -108,10 +108,26 @@ if st.button(label="Click here and start speaking"):
 # if st.button(label="Stop Response"):
 #     st.session_state.speak_flag = 1
 
+
+first_prompt_processed = False
+
 if st.session_state.prompt:    
     prompt = st.session_state.prompt
     st.session_state.prompts.append(prompt)
     
+    if not first_prompt_processed and image_url is None \
+    and not any(keyword in prompt.lower() for keyword in ["men's", "women's", "men", "women", "unisex"]):
+        speech_synthesizer.speak_text_async("Please specify whether you are looking for men's or women's clothing.")
+
+        first_prompt_processed = True
+
+        st.session_state.prompt = from_mic(speech_config)
+        ap = st.session_state.prompt
+
+        st.session_state.prompts.append(ap)
+
+
+
     with st.spinner('Finding you the best results...'):
         intent_result = identify_intent(prompt, image_url, json.dumps(st.session_state.prompts), json.dumps(st.session_state.intents))
         st.session_state.intents.append(intent_result)
