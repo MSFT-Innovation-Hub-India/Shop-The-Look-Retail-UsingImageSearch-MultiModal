@@ -64,8 +64,8 @@ def create_fields():
     return [
         SimpleField(
             name="id", type=SearchFieldDataType.String, key=True, filterable=True
-        ),
-        SearchField(name="description", type=SearchFieldDataType.String, searchable=True),
+        )
+        ,SearchField(name="description", type=SearchFieldDataType.String, searchable=True),
         SearchField(name="img", type=SearchFieldDataType.String, searchable=True),
         SearchField(
             name="descriptionVector",
@@ -73,6 +73,9 @@ def create_fields():
             vector_search_dimensions=1024,
             vector_search_profile_name="myHnswProfile",
             stored=False,
+        ),
+        SimpleField(
+            name="price", type=SearchFieldDataType.Double, filterable=True
         ),
         SearchField(
             name="imageVector",

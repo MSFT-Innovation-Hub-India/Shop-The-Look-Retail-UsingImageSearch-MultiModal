@@ -196,11 +196,13 @@ def search():
     )
 
     response = []
-    for result in results:
+    for result in results:        
         response.append({
+            "id": result['id'],
             "name": result['description'],
             "score": result['@search.score'],
-            "url": result['img']
+            "url": result['img'],
+            "price": result['price']
         })
         
         # Print each result
