@@ -14,6 +14,10 @@ module.exports = {
             protocol: 'http',
             hostname: 'assets.myntassets.com',
           },
+          {
+            protocol: 'https',
+            hostname: 'img.icons8.com'
+          }
         ],
       },
   }

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { parse } from 'path'
 import axios from 'axios'
 import { useEffect } from 'react'
+import { revalidatePath } from 'next/cache'
 
 export default function Results() {
   const searchParams = useSearchParams()
@@ -46,6 +47,12 @@ export default function Results() {
   }, [data])
 
     return (
+      <div>
+      <div className={styles.back_button}>
+        <Link className='back-button' href={'/'}>
+          <Image width="24" height="24" src="https://img.icons8.com/ios-filled/50/FFFFFF/home.png" alt="home--v1"/>
+        </Link>
+      </div>
       <div className={styles.imageContainer}>
       {jsonData.map((item, index) => (
         <Link key={index} href={`/info?item=${encodeURIComponent(JSON.stringify(item))}`}>
@@ -57,6 +64,7 @@ export default function Results() {
           />
         </Link>
       ))}
+    </div>
     </div>
     )
 }
