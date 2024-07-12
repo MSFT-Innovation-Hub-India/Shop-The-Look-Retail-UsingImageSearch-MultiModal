@@ -156,7 +156,8 @@ def create_and_run_indexer(indexer_client, indexer_name, skillset_name, index_na
                 query_timeout=None,
             ),
         ),
-        field_mappings=[FieldMapping(source_field_name="id", target_field_name="id")],
+        field_mappings=[FieldMapping(source_field_name="id", target_field_name="id"),
+                        FieldMapping(source_field_name="price", target_field_name="price"),],
         output_field_mappings=[
             FieldMapping(source_field_name="/document/descriptionVector", target_field_name="descriptionVector"),
             FieldMapping(source_field_name="/document/imageVector", target_field_name="imageVector"),

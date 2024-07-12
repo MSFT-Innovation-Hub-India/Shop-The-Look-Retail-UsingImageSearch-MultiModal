@@ -13,14 +13,14 @@ services:
       - ./image_upload/.env
     volumes:
       - ./image_upload:/app  # Mount the local streamlit directory to the /app directory in the container
-  openai:
+  streamlit:
     build:
-      context: ./openai
+      context: ./streamlit
       dockerfile: Dockerfile
     ports:
-      - "5001:5001"
+      - "8501:8501"
     restart: always
     env_file:
-      - ./openai/.env
+      - ./streamlit/.env
     volumes:
-      - ./openai:/app  # Mount the local streamlit directory to the /app directory in the container
+      - ./streamlit:/app  # Mount the local streamlit directory to the /app directory in the container

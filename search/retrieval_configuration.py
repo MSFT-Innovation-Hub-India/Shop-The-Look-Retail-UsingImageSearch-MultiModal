@@ -12,4 +12,3 @@ def authenticate_azure_search(api_key, use_aad_for_search=False):
             raise ValueError("API key must be provided if not using AAD for authentication.")
         credential = AzureKeyCredential(api_key)
     return credential
-
