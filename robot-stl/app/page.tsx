@@ -10,6 +10,15 @@ const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function MyComponent() {
 
+  useEffect(() => {
+    // Clear sessionStorage when component mounts
+    try {
+      sessionStorage.clear();
+    } catch (error) {
+      console.error('Failed to clear sessionStorage:', error);
+    }
+  }, []);
+
   const {data, error} = useSWR('http://127.0.0.1:5328/api/detect', fetcher, {
     revalidateOnFocus: false, 
     revalidateOnReconnect: false,

@@ -11,6 +11,14 @@ import { revalidatePath } from 'next/cache'
 export default function Results() {
   const searchParams = useSearchParams()
 
+  let hasSpoken;
+
+  useEffect(() => {
+    // This code runs only on the client side
+    hasSpoken = sessionStorage.getItem('hasSpoken');
+    // You can safely use sessionStorage here
+  }, []); // Empty dependency array ensures this runs once on mount
+
   const data = searchParams.get('data');
   let jsonData = [];
 
@@ -36,21 +44,34 @@ export default function Results() {
   //   }
   // }
 
+  
   useEffect(() => {
-    axios.post('http://127.0.0.1:5328/api/speak', {
-      text: "Absolutely! Here are some great options."
-    }).then(function(response){
-      console.log(response)
-    }).catch(function(error){
-      console.log(error)
-    })
-  }, [data])
+    const spoken = sessionStorage.getItem('hasSpoken') === 'true';
+    if(!spoken){
+      axios.post('http://127.0.0.1:5328/api/speak', {
+        text: "Absolutely! Here are some great options."
+      }).then(function(response){
+        console.log(response)
+        sessionStorage.setItem('hasSpoken', 'true')
+      }).catch(function(error){
+        console.log(error)
+      })
+    }
+    
+  }, [])
+
+  
 
     return (
       <div>
       <div className={styles.back_button}>
         <Link className='back-button' href={'/'}>
           <Image width="24" height="24" src="https://img.icons8.com/ios-filled/50/FFFFFF/home.png" alt="home--v1"/>
+        </Link>
+      </div>
+      <div className={styles.mic_button}>
+        <Link className='mic-button' href={'/listening'}>
+          <Image width="24" height="24" src="https://img.icons8.com/ios-glyphs/30/FFFFFF/microphone.png" alt="home--v1"/>
         </Link>
       </div>
       <div className={styles.imageContainer}>
