@@ -5,12 +5,14 @@ import {useRouter} from 'next/navigation';
 import { cache, useEffect, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import axios from 'axios';
+import { startInactivityDetection } from './inactivity'; // Import your inactivity detector
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function MyComponent() {
 
   useEffect(() => {
+    startInactivityDetection(); // Start inactivity detection
     // Clear sessionStorage when component mounts
     try {
       sessionStorage.clear();
