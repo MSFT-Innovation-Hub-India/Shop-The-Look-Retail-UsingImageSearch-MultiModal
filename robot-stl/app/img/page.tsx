@@ -70,9 +70,9 @@ export default function Results() {
         </a>
       </div>
       <div className={styles.mic_button}>
-        <Link className='mic-button' href={'/listening'}>
+        <a className='mic-button' href={'/listening'}>
           <Image width="24" height="24" src="https://img.icons8.com/ios-glyphs/30/FFFFFF/microphone.png" alt="home--v1"/>
-        </Link>
+        </a>
       </div>
       <div className={styles.imageContainer}>
       {jsonData.map((item, index) => (
