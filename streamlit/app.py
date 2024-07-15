@@ -12,13 +12,10 @@ from intent_identification import *
 page_bg_img="""
 <style>
 
-[data-testid="stHeader"]{
-background-color: #F0F2F6
+[data-testid="stSidebarContent"]{
+background-image: linear-gradient(#FEAE84, #BC3232);
 }
 
-[data-testid="stSidebarContent"]{
-background-color: #BC3232
-}
 </style>
 """
 
