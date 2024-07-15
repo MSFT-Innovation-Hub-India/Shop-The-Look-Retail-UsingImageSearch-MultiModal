@@ -18,7 +18,9 @@ from data_configuration import *
 from retrieval_configuration import *
 
 # Load environment variables
-load_dotenv()
+load_dotenv(".env")
+app = Flask(__name__)
+
 
 # Configuration
 AZURE_AI_VISION_API_KEY = os.getenv("AZURE_COMPUTER_VISION_KEY")
@@ -79,7 +81,6 @@ search_client = SearchClient(
     credential=azure_search_credential,
 )
 
-app = Flask(__name__)
 # Define the text query
 @app.route('/search', methods=['POST'])
 def search():
@@ -90,34 +91,26 @@ def search():
     print(f"Received text query: {text_query}")
     print(f"Received image URL: {image_url}")
 
-    # if not text_query or not image_url:
-    #     return jsonify({"error": "Both text_query and image_url are required"}), 400
-
     text_vector_query = VectorizableTextQuery(
-    text=text_query,
-    k_nearest_neighbors=5,
-    fields="descriptionVector",
+        text=text_query,
+        k_nearest_neighbors=5,
+        fields="descriptionVector",
     )
 
     text_image_vector_query = VectorizableTextQuery(
-    text=text_query,
-    k_nearest_neighbors=5,
-    fields="imageVector",
-    weight=50,
-    )
-
-# Define the image query
-    if image_url is not None:
-        image_vector_query = VectorizableImageUrlQuery(  # Alternatively, use VectorizableImageBinaryQuery
-        # url="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",  # Image of a Red Nike Running Shoe
-        # url = "https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/18198270/2022/7/12/282737f5-b38e-4c6e-89ad-745630638d3c1657628613069-Biba-Women-Kurtas-9431657628612606-4.jpg",
-        url = image_url,
+        text=text_query,
         k_nearest_neighbors=5,
         fields="imageVector",
-        # weight=100,
+        weight=50,
+    )
+
+    if image_url is not None:
+        image_vector_query = VectorizableImageUrlQuery(
+            url=image_url,
+            k_nearest_neighbors=5,
+            fields="imageVector",
         )
 
-        # Perform the search
         results = search_client.search(
             search_text=None, vector_queries=[text_vector_query, image_vector_query, text_image_vector_query], top=3
         )
@@ -144,10 +137,8 @@ def search():
 
     return jsonify(response)
 
-# Print the results
 # Print a message indicating the server is running
 print("Flask server is running...")
 
 if __name__ == '__main__':
-    from waitress import serve
-    serve(app, host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080,debug=True)

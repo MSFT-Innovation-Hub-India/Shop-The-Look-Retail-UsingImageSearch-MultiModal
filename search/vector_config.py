@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 
 from azure.search.documents import SearchClient
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
@@ -54,6 +55,8 @@ from azure.search.documents.models import (
     VectorizableImageUrlQuery,
     VectorSimilarityThreshold,
 )
+
+load_dotenv(".env")
 
 AZURE_AI_VISION_API_KEY = os.getenv("AZURE_COMPUTER_VISION_KEY")
 AZURE_AI_VISION_ENDPOINT = os.getenv("AZURE_COMPUTER_VISION_ENDPOINT")
