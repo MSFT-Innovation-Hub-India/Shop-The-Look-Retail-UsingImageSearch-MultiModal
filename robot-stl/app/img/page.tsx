@@ -65,9 +65,9 @@ export default function Results() {
     return (
       <div>
       <div className={styles.back_button}>
-        <Link className='back-button' href={'/'}>
+        <a className='back-button' href={'/'}>
           <Image width="24" height="24" src="https://img.icons8.com/ios-filled/50/FFFFFF/home.png" alt="home--v1"/>
-        </Link>
+        </a>
       </div>
       <div className={styles.mic_button}>
         <Link className='mic-button' href={'/listening'}>

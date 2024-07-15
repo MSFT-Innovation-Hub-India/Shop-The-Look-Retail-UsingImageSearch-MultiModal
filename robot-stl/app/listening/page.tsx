@@ -10,7 +10,6 @@ import { Router } from "next/router";
 
 export default function Speech() {
     const router = useRouter();
-
     const fetcher = (url: string) => axios.get(url).then((res) => res.data);
     const {data, error} = useSWR('http://127.0.0.1:5328/api/listen', fetcher, {
         revalidateOnFocus: false, 
