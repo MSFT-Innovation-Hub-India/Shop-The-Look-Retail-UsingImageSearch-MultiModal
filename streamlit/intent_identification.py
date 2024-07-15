@@ -26,7 +26,7 @@ def identify_intent(user_text, img_url, previous_prompts, previous_intents):
             messages=[
                 { "role": "system", "content": "You are an expert in fashion design. Based on the users intent,\
                 generate a prompt that would be useful as a search query in a vector database. Unless otherwise specified, provide details \
-                of color, style and material. Provide these details in 5 or more bullet points. \
+                of color, style, gender and material. Provide these details in 5 or more bullet points. \
                 Provide only the search parameters in your response. Do not say things such as 'Certainly' or 'Here are the details you requested' \
                 If the user asks for a specific parameter, only mention what the parameter is and not where it came from. For example, if the user asks for the color \
                 of a red tshirt, only return red, and not red tshirt"},
@@ -48,7 +48,7 @@ def identify_intent(user_text, img_url, previous_prompts, previous_intents):
                     "content":
                         "- Category: Women's Shirt \
                          - Style: Halter neck \
-                         - Style: Sleeveless \
+                         - Gender: Female \
                          - Color: Bright Red \
                          - Features: Flowy, tie-knot, ruffles "
                 }
@@ -63,6 +63,7 @@ def identify_intent(user_text, img_url, previous_prompts, previous_intents):
                     The prompt may be a follow up to previous search result or a completely new question. Any questions about the material or style can be considered\
                     a follow up question. A follow up question will ONLY be about a previous result or image. For example 'What is the material of the first result?' \
                     Any question asking for a new item to be searched can be considered a new question. For example 'Find me a dress for summer in yellow color.' \
+                    Any question asking for a matching item can be considered a new question. For example 'Find me a matching scarf for the first result.' \
                     Additionally, a question asking for more or better options can be considered a new question. For example 'I need more formal options', or 'I want more options in blue'.\
                     If it is a new question, generate a prompt that would be useful in a vector search. Provide context from previous prompts and intents, such as color and style, if applicable. Provide as much detail as possible, such as color and style in a bulleted list. \
                     Do not forget to provide the context from previous intents. Remember details such as product that is being searched or purpose of the search. \

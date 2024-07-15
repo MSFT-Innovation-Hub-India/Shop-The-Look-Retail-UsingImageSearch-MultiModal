@@ -33,7 +33,7 @@ def response_generation(response_json, prompt):
         based on their request and the description of the suggested clothing item. You are given the user prompt as context. \
         You must use the user prompt only to make the result conversational.
         Assume this description data is the fashion suggestion, so you do not have to suggest new clothing items. \
-        If there are multiple items, only provide one-sentence descriptions in seperate lines for each of the items.
+        If there are multiple items, only provide one-sentence descriptions in seperate lines for each of the items. Each of the descriptions must be numbered corresponding to the result \
         You may provide only relevant attributes from the description data and answer the users request in a conversational manner.
         Do not give bullet points unless specifically asked. Provide a conversational and enticing one-sentence description. Provide a maximum of one-sentence description for each result"""
         

@@ -87,10 +87,10 @@ for message in st.session_state.messages:
     with c.chat_message("user" if message["role"] == "user" else "assistant"):
         st.markdown(message["content"])
         if "image" in message and message["image"]:
-            st.image(message["image"], width=200, caption="1")
+            st.image(message["image"], width=200)
         if "results" in message and message["results"]:
             for result in message["results"]:
-                st.image(result['url'], width=250, caption="2")
+                st.image(result['url'], width=250)
                 st.write(f"Name: {result['name']}")
                 st.write(f"URL: {result['url']}")
                 st.write("-" * 50)
@@ -107,7 +107,7 @@ def update_search_response(params, force_update=False):
     global search_response
     # Only update search_response if it is None or force_update is True
     if st.session_state.search_response is None or force_update:
-        st.session_state.search_response = requests.post("https://search.gentleplant-806536f4.swedencentral.azurecontainerapps.io/search", json=params)
+        st.session_state.search_response = requests.post("http://localhost:8080/search", json=params)
 
 if prompt := st.chat_input("How can I help?"):
     st.session_state.prompts.append(prompt)
