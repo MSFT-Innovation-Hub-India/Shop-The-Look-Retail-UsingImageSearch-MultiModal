@@ -2,8 +2,8 @@
 import Image from 'next/image';
 import Head from 'next/head';
 import {useRouter} from 'next/navigation';
-import { useEffect } from 'react';
-import useSWR from 'swr';
+import { cache, useEffect, useState } from 'react';
+import useSWR, { mutate } from 'swr';
 import axios from 'axios';
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
@@ -14,20 +14,32 @@ export default function MyComponent() {
     // Clear sessionStorage when component mounts
     try {
       sessionStorage.clear();
+      //mutate(() => true, undefined, { revalidate: false });
     } catch (error) {
       console.error('Failed to clear sessionStorage:', error);
     }
   }, []);
-
+  
   const {data, error} = useSWR('http://127.0.0.1:5328/api/detect', fetcher, {
     revalidateOnFocus: false, 
     revalidateOnReconnect: false,
     revalidateIfStale: false,
+    // revalidateOnMount:false,
   });
-  const apiReturnedTrue = data === "eyes detected";
+
 
   const router = useRouter();
 
+  const [apiReturnedTrue, setApiReturnedTrue] = useState(false);
+  console.log(data)
+
+  useEffect(() => {
+    // console.log(apiReturnedTrue)
+    if(data === "eyes detected"){
+      setApiReturnedTrue(true);
+    }
+    console.log(apiReturnedTrue)
+  }, [data]);
   // Handle error state
   // console.log(error)
   // console.log(data)
@@ -38,6 +50,7 @@ export default function MyComponent() {
   useEffect(() => {
     if (apiReturnedTrue) {
       router.push('/listening');
+      setApiReturnedTrue(false);
     }
   }, [apiReturnedTrue, router]);
 
