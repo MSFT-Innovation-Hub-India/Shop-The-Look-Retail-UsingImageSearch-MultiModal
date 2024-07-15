@@ -9,11 +9,35 @@ from intent_identification import *
 
 # st.set_page_config(layout="wide")
 
+page_bg_img="""
+<style>
+
+[data-testid="stHeader"]{
+background-color: #F0F2F6
+}
+
+[data-testid="stSidebarContent"]{
+background-color: #BC3232
+}
+</style>
+"""
+
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
 # Load environment variables from .env file
 load_dotenv(".env")
+st.warning('WARNING: This is a pre-production version. Certain functionality may be limited. Use with caution', icon="⚠️")
 
-st.title("Shop the Look")
-st.caption("Upload an image and find similar items in our catalog")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.write('')
+
+with col2:
+    st.image('logo.png', width=230)
+
+with col3:
+    st.write('')
 
 # Initialize chat history and result history
 if "messages" not in st.session_state:
@@ -21,11 +45,17 @@ if "messages" not in st.session_state:
 
 if "results" not in st.session_state:
     st.session_state.results = []
+    
+if "prompts" not in st.session_state:
+    st.session_state.prompts = []
+    
+if "intents" not in st.session_state:
+    st.session_state.intents = []
 
 with st.sidebar:
-    st.header('Results')
+    st.markdown("<h2 style='text-align: center;'>Result History</h2>", unsafe_allow_html=True)
 
-c = st.container()
+c = st.container(height=350)
 
 uploaded_file = st.file_uploader("Upload your image...", type=["jpg", "jpeg", "png"])
 
@@ -37,7 +67,7 @@ if uploaded_file is not None:
     try:
         # Send the image file to the Flask endpoint
         files = {'file': uploaded_file}
-        response = requests.post('http://172.24.0.3:5003/upload_image', files=files)
+        response = requests.post('https://imageupload.gentleplant-806536f4.swedencentral.azurecontainerapps.io/upload_image', files=files)
 
         if response.status_code == 200:
             # Display the image URL returned by the server
@@ -80,9 +110,10 @@ def update_search_response(params, force_update=False):
     global search_response
     # Only update search_response if it is None or force_update is True
     if st.session_state.search_response is None or force_update:
-        st.session_state.search_response = requests.post("http://172.24.0.4:8080/search", json=params)
+        st.session_state.search_response = requests.post("https://search.gentleplant-806536f4.swedencentral.azurecontainerapps.io/search", json=params)
 
 if prompt := st.chat_input("How can I help?"):
+    st.session_state.prompts.append(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt, "image": image_url})
 
     with c.chat_message("user"):
@@ -92,9 +123,16 @@ if prompt := st.chat_input("How can I help?"):
 
     #################################################### 
 
-    intent_result = identify_intent(prompt, image_url)
+    intent_result = identify_intent(prompt, image_url, json.dumps(st.session_state.prompts), json.dumps(st.session_state.intents))
+    st.session_state.intents.append(intent_result)
+    print(intent_result)
     
-    force_update = intent_result != "This is a follow up"
+    
+    if intent_result != "This is a follow up":
+        force_update = True
+    else:
+        force_update = False
+        
     
     params = {'image_url': image_url, 'text_query': intent_result}
     update_search_response(params, force_update)
@@ -118,6 +156,7 @@ if prompt := st.chat_input("How can I help?"):
             new_objects.append(description_response_new)
         
         json_new_objects = json.dumps(new_objects)
+        print("*********************")
         openai_response = response_generation(json_new_objects, prompt)
         
         if openai_response:
