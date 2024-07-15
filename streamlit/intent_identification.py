@@ -66,7 +66,7 @@ def identify_intent(user_text, img_url, previous_prompts, previous_intents):
                     Additionally, a question asking for more or better options can be considered a new question. For example 'I need more formal options', or 'I want more options in blue'.\
                     If it is a new question, generate a prompt that would be useful in a vector search. Provide context from previous prompts and intents, such as color and style, if applicable. Provide as much detail as possible, such as color and style in a bulleted list. \
                     Do not forget to provide the context from previous intents. Remember details such as product that is being searched or purpose of the search. \
-                    If it is a follow up question, return the following statement exactly: \"This is a follow up\"."},
+                    If it is a follow up question, return the following statement exactly: \"This is a follow up\""},
 
                 { "role": "user", "content": [  
                     { 
