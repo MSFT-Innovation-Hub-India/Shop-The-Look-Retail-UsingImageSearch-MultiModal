@@ -6,6 +6,7 @@ import uuid
 from response_generation import *
 import requests
 from intent_identification import *
+import time
 
 # st.set_page_config(layout="wide")
 
@@ -23,7 +24,6 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 
 # Load environment variables from .env file
 load_dotenv(".env")
-st.warning('WARNING: This is a pre-production version. Certain functionality may be limited. Use with caution', icon="⚠️")
 
 col1, col2, col3 = st.columns(3)
 
@@ -154,15 +154,23 @@ if prompt := st.chat_input("How can I help?"):
         
         json_new_objects = json.dumps(new_objects)
         print("*********************")
-        openai_response = response_generation(json_new_objects, prompt)
         
+        openai_response = response_generation(json_new_objects, prompt)
+
         if openai_response:
             for i in range(len(url_responses)):
-                results = [{"name": None, "url": url_responses[i],"price":price_response[i]}]
+                results = [{"name": None, "url": url_responses[i], "price": price_response[i]}]
                 st.session_state.results.extend(results)
-                
+
             with c.chat_message("assistant"):
-                st.write(openai_response.choices[0].message.content)
+                response_content = openai_response.choices[0].message.content
+                placeholder = st.empty()
+                typed_text = ""
+                for char in response_content:
+                    typed_text += char
+                    placeholder.markdown(typed_text)
+                    time.sleep(0.005)  # Adjust the speed of typing here
+
                 cols = st.columns(3)
                 for i in range(3):
                     with cols[i % 3]:
@@ -186,10 +194,20 @@ if prompt := st.chat_input("How can I help?"):
         
         if openai_response:
             results = [{"name": openai_response, "url": None}]
-            st.session_state.messages.append({"role": "assistant", "image": None, "content": openai_response.choices[0].message.content,})
+            st.session_state.messages.append({
+                "role": "assistant",
+                "image": None,
+                "content": openai_response.choices[0].message.content,
+            })
 
             with c.chat_message("assistant"):
-                st.write(openai_response.choices[0].message.content)
+                response_content = openai_response.choices[0].message.content
+                placeholder = st.empty()
+                typed_text = ""
+                for char in response_content:
+                    typed_text += char
+                    placeholder.markdown(typed_text)
+                    time.sleep(0.005)  # Faster typing speed
 
             st.session_state.results.extend(results)
         
