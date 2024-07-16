@@ -64,7 +64,7 @@ if uploaded_file is not None:
     try:
         # Send the image file to the Flask endpoint
         files = {'file': uploaded_file}
-        response = requests.post('https://imageupload.gentleplant-806536f4.swedencentral.azurecontainerapps.io/upload_image', files=files)
+        response = requests.post('http://localhost:8080/upload_image', files=files)
 
         if response.status_code == 200:
             # Display the image URL returned by the server
