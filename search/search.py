@@ -1,5 +1,6 @@
 import os
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from azure.search.documents import SearchClient
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
 from azure.search.documents.models import (
@@ -24,7 +25,7 @@ from retrieval_configuration import *
 # Load environment variables
 load_dotenv(".env")
 app = Flask(__name__)
-
+CORS(app)
 
 # Configuration
 AZURE_AI_VISION_API_KEY = os.getenv("AZURE_COMPUTER_VISION_KEY")
