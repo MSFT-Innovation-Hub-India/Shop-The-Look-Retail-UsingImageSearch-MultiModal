@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.bg-header {
+    --tw-bg-opacity: 1;
+    background-color: rgb(253 82 82 / var(--tw-bg-opacity)) /* #fd5252 */;
+}

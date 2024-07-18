@@ -1,6 +1,6 @@
 //File not required anymore
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+{/* <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 
 import React from 'react'
 import { FaMicrophone } from 'react-icons/fa'
@@ -29,4 +29,4 @@ export const Searchbar = () => {
       </form>
     )
   }
-  
+   */}
