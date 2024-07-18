@@ -15,7 +15,7 @@ const Chatbot = () => {
     if (!input) return;
 
     const response = await axios.post('/api/echo', { message: input });
-    setMessages([...messages, `You: ${input}`, `Bot: ${response.data.message}`]);
+    setMessages([...messages, `User: ${input}`, `Bot: ${response.data.message}`]);
     setInput('');
     setIsShrunk(true);
   };

@@ -8,7 +8,7 @@ function Nav() {
     const { isShrunk } = useHeader();
   
     return (
-      <div className={`fixed w-full transition-all duration-500 ${isShrunk ? 'bg-header py-2' : 'bg-header py-80'}`}>
+      <div className={`fixed w-full transition-all duration-500 ${isShrunk ? 'text-black bg-header py-2' : 'text-black bg-header py-80'}`}>
         <div className='header flex w-80 mx-auto justify-between items-center'>
           <div className='logo'>
             <h2 className='text-4xl font-bold'>Shop the Look</h2>
