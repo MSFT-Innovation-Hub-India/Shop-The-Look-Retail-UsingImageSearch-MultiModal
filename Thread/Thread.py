@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 from openai import AzureOpenAI
 from typing import Optional
-from intent_identification import *
+#from intent_identification import *
 from flask import Flask, request, jsonify
 from requests.models import Response
 import os
