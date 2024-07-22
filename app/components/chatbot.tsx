@@ -12,6 +12,7 @@ const Chatbot = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [imageUrls, setImageUrls] = useState<string[]>([]); // State variable to store image URLs
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +40,10 @@ const Chatbot = () => {
   
         const { image_url, filename } = response.data;
         console.log('File uploaded, image URL:', image_url);
+
+
+        // Add the new image URL to the state
+        setImageUrls((prevUrls) => [...prevUrls, image_url]);
 
         // Create an Image object to get its natural dimensions
         const img = new Image();
@@ -126,6 +131,19 @@ const Chatbot = () => {
           style={{ display: 'none' }}
           onChange={handleFileSelect}
         />
+      {/* Display the list of image URLs */}
+      <div className="mt-4">
+          <h3 className="text-lg font-bold">Uploaded Images</h3>
+          <ul className="list-disc pl-5">
+            {imageUrls.map((url, index) => (
+              <li key={index} className="text-blue-500 underline">
+                <a href={url} target="_blank" rel="noopener noreferrer">
+                  {url}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
