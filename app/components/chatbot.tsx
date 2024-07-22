@@ -70,7 +70,7 @@ const Chatbot = () => {
       <div className="w-full flex flex-col items-center">
         <div className="justify-center pt-1 max-w-7xl w-full max-h-[70vh] h-auto flex-grow bg-white p-4 rounded-lg border-2 border-zinc-200 overflow-y-auto">
           {messages.map((msg, index) => (
-            <p key={index} className={`mb-2 ${msg.startsWith('User') ? 'text-black' : 'text-black'}`}>
+            <p key={index} className={`mb-2 ${msg.startsWith('User') ? 'text-black flex-row-reverse' : 'text-black'}`}>
               {msg}
             </p>
           ))}
@@ -93,7 +93,7 @@ const Chatbot = () => {
             <button
               type="button"
               onClick={handleImageClose}
-              className="absolute pr-1.5 p-1 bg-red-500 rounded-full"
+              className="absolute pr-1 p-1 bg-red-500 rounded-full"
             >
               <IoClose color='white' size={12} />
             </button>
