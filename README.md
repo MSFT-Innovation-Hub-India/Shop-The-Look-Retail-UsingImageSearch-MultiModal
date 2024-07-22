@@ -45,6 +45,10 @@ To run this project, you will need to add the following environment variables to
 
 `AZURE_SEARCH_SERVICE_ENDPOINT`
 
+`BLOB_CONNECTION_STRING`
+
+`BLOB_CONTAINER_NAME_IMG`
+
 
 
 
