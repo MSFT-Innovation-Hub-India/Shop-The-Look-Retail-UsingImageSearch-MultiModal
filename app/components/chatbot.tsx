@@ -24,27 +24,7 @@ const Chatbot = () => {
     width: number;
     height: number;
   } | null>(null);
-
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input) return;
-
-    try {
-      const response = await axios.post('/api/echo', { message: input });
-
-      // Set new messages in the state with type annotations
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: 'user', text: input },
-        { type: 'bot', text: response.data.message },
-      ]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
-
-    setInput('');
-    setIsShrunk(true);
-  };
+  const [imageURL, setImageURL] = useState<string | null>(null);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -75,7 +55,8 @@ const Chatbot = () => {
           }
         );
 
-        const { image_url } = response.data;
+        const { image_url } = response.data; // Ensure this matches the actual response key
+        setImageURL(image_url);
         console.log('File uploaded, image URL:', image_url);
 
 
@@ -84,6 +65,31 @@ const Chatbot = () => {
       }
     }
   };
+
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input) return;
+
+    try {
+      const response = await axios.post('/api/echo', { message: input, imageURL: imageURL || '' });
+
+      // Set new messages in the state with type annotations
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { type: 'user', text: input },
+        { type: 'bot', text: response.data.message },
+      ]);
+
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+
+    setInput('');
+    setIsShrunk(true);
+  };
+
+  
 
   const handleImageButtonClick = () => {
     if (fileInputRef.current) {
