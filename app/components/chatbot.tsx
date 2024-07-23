@@ -116,7 +116,7 @@ const Chatbot = () => {
       <div className="w-full flex flex-col items-center">
         <div
           ref={chatContainerRef}
-          className="justify-center pt-1 max-w-7xl w-full max-h-[70vh] h-auto flex-grow bg-white p-4 rounded-lg overflow-y-auto"
+          className="justify-center pt-1 max-w-5xl w-full max-h-[70vh] h-auto flex-grow bg-white p-4 rounded-lg overflow-y-auto"
         >
           {messages.map((msg, index) => (
             <div
