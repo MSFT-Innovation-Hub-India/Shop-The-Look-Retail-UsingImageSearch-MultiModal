@@ -10,9 +10,11 @@ from typing import Optional
 #from intent_identification import *
 from flask import Flask, request, jsonify
 from requests.models import Response
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 # Load environment variables
 load_dotenv(".env")
@@ -233,7 +235,6 @@ def process_request():
     thread_id = data.get('thread_id')
     assistant_id = data.get('assistant_id')
 
-
     if img_url is not None:
         # Analyze the image
         image_description = analyze_image(img_url)
@@ -277,14 +278,22 @@ def process_request():
         poll_run_till_completion(
             client=client, thread_id=thread_id, run_id=run.id, available_functions={"intent": intent}, verbose=True
         )
-
-        # Retrieve and print messages
-        followUp_response, messages = retrieve_and_print_messages(client=client, thread_id=thread_id, verbose=True)
-        print("Assistant Response from follow up question", followUp_response)
-
         
+        followUp_response, messages = retrieve_and_print_messages(client=client, thread_id=thread_id, verbose=True)
+                
+            # Create the dictionary
+        response_dict = {
+            "assistant_id": os.getenv("AZURE_ASSISTANT_RESPONSE"),
+            "value": followUp_response
+        }
 
-        return jsonify(followUp_response)
+        # Convert the dictionary to a JSON string
+        response_json = json.dumps(response_dict)
+
+        # Print or use the JSON string as needed
+        print(response_json)
+
+        return followUp_response
 
     else:
         # Call the new function to handle the assistant response
