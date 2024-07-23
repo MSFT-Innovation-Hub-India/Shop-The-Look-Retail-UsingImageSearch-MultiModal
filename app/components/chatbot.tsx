@@ -1,12 +1,7 @@
-'use client';
+'use client'
 
 import React, { useState, useRef } from 'react';
-import {
-  IoMicOutline,
-  IoImagesOutline,
-  IoSend,
-  IoClose,
-} from 'react-icons/io5';
+import { IoMicOutline, IoImagesOutline, IoSend, IoClose } from 'react-icons/io5';
 import axios from 'axios';
 import { useHeader } from './Header';
 import Image from 'next/image';
@@ -62,7 +57,7 @@ const Chatbot = () => {
       const img = new window.Image();
       img.src = localImageUrl;
       img.onload = () => {
-        setImageDimensions({ width: 64, height: 64 });
+        setImageDimensions({ width: 50, height: 50 });
       };
 
       // Upload the file to the server
@@ -83,9 +78,7 @@ const Chatbot = () => {
         const { image_url } = response.data;
         console.log('File uploaded, image URL:', image_url);
 
-        // Optionally update the image preview URL to the uploaded image URL
-        // Uncomment the line below if you want to show the uploaded image URL instead
-        // setImagePreview(image_url);
+
       } catch (error) {
         console.error('Error uploading file:', error);
       }
@@ -148,18 +141,21 @@ const Chatbot = () => {
         >
           {imagePreview && (
             <div className="relative ml-8 mr-10 mt-2 mb-0">
-              <Image
-                src={imagePreview}
-                alt="Preview"
-                width={50}
-                height={50}
-                className="object-cover rounded-lg"
-                style={{ objectFit: 'cover' }}
-              />
+              <div
+                className="relative w-[50px] h-[50px] overflow-hidden"
+                style={{ borderRadius: '8px' }}
+              >
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  layout="fill"
+                  objectFit="cover" 
+                />
+              </div>
               <button
                 type="button"
                 onClick={handleImageClose}
-                className="absolute top-0 right-0 bg-header rounded-full p-1"
+                className="absolute bottom-8 left-9 bg-header rounded-full p-1"
               >
                 <IoClose color="white" size={12} />
               </button>
