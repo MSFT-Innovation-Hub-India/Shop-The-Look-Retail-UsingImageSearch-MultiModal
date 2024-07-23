@@ -12,6 +12,10 @@ from flask import Flask, request, jsonify
 from requests.models import Response
 from flask_cors import CORS
 import os
+import logging 
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 CORS(app)
@@ -24,6 +28,10 @@ openai.api_type = "azure"
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_API_ENDPOINT = os.getenv("AZURE_OPENAI_API_ENDPOINT")
 #AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
+
+if not AZURE_OPENAI_API_KEY or not AZURE_OPENAI_API_ENDPOINT:
+    logging.error("Azure OpenAI API key or endpoint not found.")
+    exit(1)
 
 client = AzureOpenAI(
     api_key=AZURE_OPENAI_API_KEY,
@@ -222,6 +230,34 @@ def retrieve_and_print_messages(
         print(e)
         return None
 
+def process_follow_up(client, thread_id, user_text, assistant_id):
+            create_message(client, thread_id, role="user", content=user_text)
+            run = client.beta.threads.runs.create(
+                thread_id=thread_id,
+                assistant_id=assistant_id
+            )
+
+            # Poll until completion
+            poll_run_till_completion(
+                client=client, thread_id=thread_id, run_id=run.id, available_functions={"intent": intent}, verbose=True
+            )
+            
+            followUp_response, messages = retrieve_and_print_messages(client=client, thread_id=thread_id, verbose=True)
+                    
+            # Create the dictionary
+            response_dict = {
+                "assistant_id": assistant_id,
+                "value": followUp_response
+            }
+
+            # Convert the dictionary to a JSON string
+            response_json = json.dumps(response_dict)
+
+            # Print or use the JSON string as needed
+            print(response_json)
+
+            return response_json
+
 @app.route('/create-thread', methods=['POST'])
 def create_thread():
     thread = client.beta.threads.create()
@@ -234,6 +270,9 @@ def process_request():
     img_url = data.get('img_url')
     thread_id = data.get('thread_id')
     assistant_id = data.get('assistant_id')
+
+    if not user_text or not thread_id or not assistant_id:
+        return jsonify({"status": "error", "message": "Missing required fields"}), 400
 
     if img_url is not None:
         # Analyze the image
@@ -265,36 +304,11 @@ def process_request():
 
     # Retrieve and print messages
     assistant_response, messages = retrieve_and_print_messages(client=client, thread_id=thread_id, verbose=True)
-    print("Assistant Response from function", assistant_response)
+    print("Assistant Response from Intent Identification", assistant_response)
     
     if assistant_response == "This is a follow-up":
-        create_message(client, thread_id, role="user", content=user_text)
-        run = client.beta.threads.runs.create(
-        thread_id=thread_id,
-        assistant_id=os.getenv("AZURE_ASSISTANT_RESPONSE") #Response_Generation assistant 
-        )
-
-            # Poll until completion
-        poll_run_till_completion(
-            client=client, thread_id=thread_id, run_id=run.id, available_functions={"intent": intent}, verbose=True
-        )
-        
-        followUp_response, messages = retrieve_and_print_messages(client=client, thread_id=thread_id, verbose=True)
-                
-            # Create the dictionary
-        response_dict = {
-            "assistant_id": os.getenv("AZURE_ASSISTANT_RESPONSE"),
-            "value": followUp_response
-        }
-
-        # Convert the dictionary to a JSON string
-        response_json = json.dumps(response_dict)
-
-        # Print or use the JSON string as needed
-        print(response_json)
-
-        return followUp_response
-
+        followUp_response = process_follow_up(client, thread_id, user_text, assistant_id)
+        return jsonify(followUp_response)
     else:
         # Call the new function to handle the assistant response
         search_response = send_request_to_search_endpoint(assistant_response, img_url)
