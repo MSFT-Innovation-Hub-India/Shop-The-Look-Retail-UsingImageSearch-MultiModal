@@ -12,6 +12,7 @@ import botImage from '/public/bot.png';
 interface Message {
   type: 'user' | 'bot';
   text: string;
+  imageURL?: string; // Optional image URL parameter
 }
 
 const Chatbot = () => {
@@ -24,7 +25,7 @@ const Chatbot = () => {
     width: number;
     height: number;
   } | null>(null);
-  const [imageURL, setImageURL] = useState<string | null>(null);
+  const [imageURL, setImageURL] = useState<string>('');
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -76,8 +77,8 @@ const Chatbot = () => {
       // Set new messages in the state with type annotations
       setMessages((prevMessages) => [
         ...prevMessages,
-        { type: 'user', text: input },
-        { type: 'bot', text: response.data.message },
+        { type: 'user', text: input, imageURL: imageURL || '' },
+        { type: 'bot', text: response.data.message, imageURL: response.data.imageURL},
       ]);
 
 
@@ -128,6 +129,8 @@ const Chatbot = () => {
                 }`}
               >
                 {msg.text}
+                {msg.imageURL && <Image src={msg.imageURL} alt="Uploaded" width={50} height={50} />}
+              
               </p>
               {msg.type === 'user' && (
                 <Image
