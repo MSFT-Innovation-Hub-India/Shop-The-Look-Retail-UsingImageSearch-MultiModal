@@ -1,25 +1,52 @@
-'use client'
+'use client';
 
 import React, { useState, useRef } from 'react';
-import { IoMicOutline, IoImagesOutline, IoSend, IoClose } from 'react-icons/io5';
+import {
+  IoMicOutline,
+  IoImagesOutline,
+  IoSend,
+  IoClose,
+} from 'react-icons/io5';
 import axios from 'axios';
 import { useHeader } from './Header';
+import Image from 'next/image';
+import userImage from '/public/user.png';
+import botImage from '/public/bot.png';
+
+// Define the type for the messages
+interface Message {
+  type: 'user' | 'bot';
+  text: string;
+}
 
 const Chatbot = () => {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<string[]>([]);
+  const [input, setInput] = useState<string>('');
+  const [messages, setMessages] = useState<Message[]>([]);
   const { setIsShrunk } = useHeader();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
-  const [imageUrls, setImageUrls] = useState<string[]>([]); // State variable to store image URLs
+  const [imageDimensions, setImageDimensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input) return;
 
-    const response = await axios.post('/api/echo', { message: input });
-    setMessages([...messages, `User: ${input}`, `Bot: ${response.data.message}`]);
+    try {
+      const response = await axios.post('/api/echo', { message: input });
+
+      // Set new messages in the state with type annotations
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { type: 'user', text: input },
+        { type: 'bot', text: response.data.message },
+      ]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+
     setInput('');
     setIsShrunk(true);
   };
@@ -27,32 +54,38 @@ const Chatbot = () => {
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Set up a local preview using a temporary URL
+      const localImageUrl = URL.createObjectURL(file);
+      setImagePreview(localImageUrl);
+
+      // Create an Image object to get its natural dimensions
+      const img = new window.Image();
+      img.src = localImageUrl;
+      img.onload = () => {
+        setImageDimensions({ width: 64, height: 64 });
+      };
+
       // Upload the file to the server
       const formData = new FormData();
       formData.append('file', file);
-  
+
       try {
-        const response = await axios.post('https://search.gentleplant-806536f4.swedencentral.azurecontainerapps.io/upload_image', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-  
-        const { image_url, filename } = response.data;
+        const response = await axios.post(
+          'https://search.gentleplant-806536f4.swedencentral.azurecontainerapps.io/upload_image',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        const { image_url } = response.data;
         console.log('File uploaded, image URL:', image_url);
 
-
-        // Add the new image URL to the state
-        setImageUrls((prevUrls) => [...prevUrls, image_url]);
-
-        // Create an Image object to get its natural dimensions
-        const img = new Image();
-        img.src = image_url;
-        img.onload = () => {
-          setImageDimensions({ width: img.width, height: img.height });
-        };
-
-        setImagePreview(image_url);
+        // Optionally update the image preview URL to the uploaded image URL
+        // Uncomment the line below if you want to show the uploaded image URL instead
+        // setImagePreview(image_url);
       } catch (error) {
         console.error('Error uploading file:', error);
       }
@@ -73,54 +106,86 @@ const Chatbot = () => {
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="w-full flex flex-col items-center">
-        <div className="justify-center pt-1 max-w-7xl w-full max-h-[70vh] h-auto flex-grow bg-white p-4 rounded-lg border-2 border-zinc-200 overflow-y-auto">
+        <div className="justify-center pt-1 max-w-7xl w-full max-h-[70vh] h-auto flex-grow bg-white p-4 rounded-lg overflow-y-auto">
           {messages.map((msg, index) => (
-            <p key={index} className={`mb-2 ${msg.startsWith('User') ? 'text-black flex-row-reverse' : 'text-black'}`}>
-              {msg}
-            </p>
+            <div
+              key={index}
+              className={`mb-2 flex items-center ${
+                msg.type === 'user' ? 'justify-end' : 'justify-start'
+              }`}
+            >
+              {msg.type === 'bot' && (
+                <Image
+                  src={botImage}
+                  alt="Bot"
+                  width={48}
+                  height={48}
+                  className="mr-2 rounded-full"
+                />
+              )}
+              <p
+                className={`p-2 rounded-md ${
+                  msg.type === 'user' ? 'bg-zinc-100' : 'bg-transparent'
+                }`}
+              >
+                {msg.text}
+              </p>
+              {msg.type === 'user' && (
+                <Image
+                  src={userImage}
+                  alt="User"
+                  width={48}
+                  height={48}
+                  className="ml-2 rounded-full"
+                />
+              )}
+            </div>
           ))}
         </div>
-        <form onSubmit={sendMessage} className='fixed bottom-4 mx-auto bg-black w-[70%] p-0 rounded-3xl'>
-        {imagePreview && (
-          <div
-            className="relative p-3 pr-3"
-            style={{
-              width: '48px', // Slightly larger than icons
-              height: '48px', // Same height to maintain aspect ratio
-            }}
-          >
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="absolute w-full h-full object-cover" // Adjust to fit within container
-              style={{ transform: 'scale(0.7)' }} // Scale down the image
-            />
+        <form
+          onSubmit={sendMessage}
+          className="fixed bottom-4 mx-auto bg-black w-[70%] p-0 rounded-3xl"
+        >
+          {imagePreview && (
+            <div className="relative ml-8 mr-10 mt-2 mb-0">
+              <Image
+                src={imagePreview}
+                alt="Preview"
+                width={50}
+                height={50}
+                className="object-cover rounded-lg"
+                style={{ objectFit: 'cover' }}
+              />
+              <button
+                type="button"
+                onClick={handleImageClose}
+                className="absolute top-0 right-0 bg-header rounded-full p-1"
+              >
+                <IoClose color="white" size={12} />
+              </button>
+            </div>
+          )}
+          <div className="flex items-center justify-center py-2 space-x-2">
+            <button type="button" className="p-2 bg-transparent">
+              <IoMicOutline color="white" size={30} />
+            </button>
             <button
               type="button"
-              onClick={handleImageClose}
-              className="absolute pr-1 p-1 bg-red-500 rounded-full"
+              className="p-2 bg-transparent"
+              onClick={handleImageButtonClick}
             >
-              <IoClose color='white' size={12} />
-            </button>
-          </div>
-        )}
-          <div className="flex items-center justify-center py-2 space-x-2">
-            <button type="button" className='p-2 bg-transparent'>
-              <IoMicOutline color='white' size={30} />
-            </button>
-            <button type="button" className='p-2 bg-transparent' onClick={handleImageButtonClick}>
-              <IoImagesOutline color='white' size={30} />
+              <IoImagesOutline color="white" size={30} />
             </button>
             <input
               type="search"
-              placeholder='How can I help'
+              placeholder="How can I help"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className='w-[85%] p-4 rounded-3xl bg-black text-white focus:outline-none'
+              className="w-[85%] p-4 rounded-3xl bg-black text-white focus:outline-none"
             />
             <div className="flex space-x-2">
-              <button type="submit" className='p-2 bg-transparent'>
-                <IoSend color='white' size={30} />
+              <button type="submit" className="p-2 bg-transparent">
+                <IoSend color="white" size={30} />
               </button>
             </div>
           </div>
@@ -131,19 +196,6 @@ const Chatbot = () => {
           style={{ display: 'none' }}
           onChange={handleFileSelect}
         />
-      {/* Display the list of image URLs */}
-      <div className="mt-4">
-          <h3 className="text-lg font-bold">Uploaded Images</h3>
-          <ul className="list-disc pl-5">
-            {imageUrls.map((url, index) => (
-              <li key={index} className="text-blue-500 underline">
-                <a href={url} target="_blank" rel="noopener noreferrer">
-                  {url}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
     </div>
   );
