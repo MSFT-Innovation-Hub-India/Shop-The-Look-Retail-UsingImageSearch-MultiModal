@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { IoMicOutline, IoImagesOutline, IoSend, IoClose } from 'react-icons/io5';
 import axios from 'axios';
 import { useHeader } from './Header';
@@ -26,6 +26,9 @@ const Chatbot = () => {
     height: number;
   } | null>(null);
   const [imageURL, setImageURL] = useState<string>('');
+
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const latestMessageRef = useRef<HTMLDivElement>(null);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -60,7 +63,6 @@ const Chatbot = () => {
         setImageURL(image_url);
         console.log('File uploaded, image URL:', image_url);
 
-
       } catch (error) {
         console.error('Error uploading file:', error);
       }
@@ -81,16 +83,16 @@ const Chatbot = () => {
         { type: 'bot', text: response.data.message, imageURL: response.data.imageURL},
       ]);
 
-
     } catch (error) {
       console.error('Error sending message:', error);
     }
 
     setInput('');
+    setImagePreview(null); // Reset image preview
+    setImageDimensions(null); // Reset image dimensions if needed
+    setImageURL(''); // Reset the image URL
     setIsShrunk(true);
   };
-
-  
 
   const handleImageButtonClick = () => {
     if (fileInputRef.current) {
@@ -103,13 +105,23 @@ const Chatbot = () => {
     setImageDimensions(null);
   };
 
+  useEffect(() => {
+    if (latestMessageRef.current) {
+      latestMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [messages]);
+
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="w-full flex flex-col items-center">
-        <div className="justify-center pt-1 max-w-7xl w-full max-h-[70vh] h-auto flex-grow bg-white p-4 rounded-lg overflow-y-auto">
+        <div
+          ref={chatContainerRef}
+          className="justify-center pt-1 max-w-7xl w-full max-h-[70vh] h-auto flex-grow bg-white p-4 rounded-lg overflow-y-auto"
+        >
           {messages.map((msg, index) => (
             <div
               key={index}
+              ref={index === messages.length - 1 ? latestMessageRef : null}
               className={`mb-2 flex items-center ${
                 msg.type === 'user' ? 'justify-end' : 'justify-start'
               }`}
@@ -130,7 +142,6 @@ const Chatbot = () => {
               >
                 {msg.text}
                 {msg.imageURL && <Image src={msg.imageURL} alt="Uploaded" width={50} height={50} />}
-              
               </p>
               {msg.type === 'user' && (
                 <Image
