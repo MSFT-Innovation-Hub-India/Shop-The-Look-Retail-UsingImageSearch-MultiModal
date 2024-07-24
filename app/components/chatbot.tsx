@@ -77,10 +77,16 @@ const Chatbot = () => {
     e.preventDefault();
     if (!input) return;
 
+    setIsShrunk(true);
+    setInput('');
+    setImagePreview(null); // Reset image preview
+    setImageDimensions(null); // Reset image dimensions if needed
+    setImageURL(''); // Reset the image URL
+
     // Show the user's message immediately
     setMessages((prevMessages) => [
       ...prevMessages,
-      { type: 'user', text: input },
+      { type: 'user', text: input, imageURL: imageURL },
     ]);
 
     if (threadId) {
@@ -106,11 +112,6 @@ const Chatbot = () => {
           console.error('Error sending message:', error);
         }
 
-    setInput('');
-    setImagePreview(null); // Reset image preview
-    setImageDimensions(null); // Reset image dimensions if needed
-    setImageURL(''); // Reset the image URL
-    setIsShrunk(true);
   };
   };
   
