@@ -29,10 +29,6 @@ AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_API_ENDPOINT = os.getenv("AZURE_OPENAI_API_ENDPOINT")
 #AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 
-if not AZURE_OPENAI_API_KEY or not AZURE_OPENAI_API_ENDPOINT:
-    logging.error("Azure OpenAI API key or endpoint not found.")
-    exit(1)
-
 client = AzureOpenAI(
     api_key=AZURE_OPENAI_API_KEY,
     api_version="2024-05-01-preview",
@@ -44,7 +40,7 @@ def send_request_to_search_endpoint(assistant_response, img_url):
         return {"status": "Follow up detected"}
     else:
         text_query = assistant_response  # Assuming this is the vector search query
-        response = requests.post('http://localhost:8080/search', json={"text_query": text_query, "image_url": img_url})
+        response = requests.post('https://search.gentleplant-806536f4.swedencentral.azurecontainerapps.io/search', json={"text_query": text_query, "image_url": img_url})
         #result = response.json()
         return response.json()
         #return {"status": "Request processed successfully", "result": result}
@@ -307,7 +303,7 @@ def process_request():
     print("Assistant Response from Intent Identification", assistant_response)
     
     if assistant_response == "This is a follow-up":
-        followUp_response = process_follow_up(client, thread_id, user_text, assistant_id)
+        followUp_response = process_follow_up(client, thread_id, user_text, os.getenv("AZURE_ASSISTANT_RESPONSE"))
         return jsonify(followUp_response)
     else:
         # Call the new function to handle the assistant response
