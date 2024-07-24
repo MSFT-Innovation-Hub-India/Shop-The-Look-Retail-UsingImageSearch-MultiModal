@@ -13,8 +13,8 @@ import { handleFormattedResponse } from './handleResponse';
 export interface Message {
   type: 'user' | 'bot';
   text: string;
-  imageURL?: string;
-  price?: number;
+  image_url: string;
+  imageWithPrices?: {imageURL: string; price: number}[]
 }
 
 export interface Product {
@@ -25,7 +25,6 @@ export interface Product {
 
 const Chatbot = () => {
   const [input, setInput] = useState<string>('');
-  const [product, setProduct] = useState<Product[]>([])
   const [messages, setMessages] = useState<Message[]>([]);
   const { setIsShrunk } = useHeader();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,7 +79,7 @@ const Chatbot = () => {
     // Send user message
     setMessages(prevMessages => [
       ...prevMessages,
-      { type: 'user', text: input, imageURL: imageURL }
+      { type: 'user', text: input, image_url: imageURL}
     ]);
   
     if (threadId) {
@@ -94,41 +93,23 @@ const Chatbot = () => {
       try {
         const processResponse = await axios.post('http://localhost:5328/process-request', params);
         console.log("Process response: ", processResponse.data);
-  
-        const isArray = Array.isArray(processResponse.data);
-        const hasExpectedFormat = isArray && processResponse.data.every((item: Product) =>
-          typeof item === 'object' &&
-          'name' in item &&
-          'price' in item &&
-          'url' in item
-        );
-  
-        if (hasExpectedFormat) {
-          console.log("Response is in the format of response1.");
-          const formattedData = handleFormattedResponse(processResponse.data);
-  
-          // Add each formatted message individually
-          setMessages(prevMessages => [
-            ...prevMessages,
-            ...formattedData.map(item => ({
-              type: 'bot',
-              // text: item.text,
-              imageURL: item.imageURL,
-              price: item.price
-            }) as Message)  // Type assertion to match Message type
-          ]);
-  
-          console.log('Messages Added:', formattedData);
-        } else {
-          console.log("Response is not in the format of response1.");
-        }
-      } catch (error) {
-        console.error('Error sending message:', error);
-      }
+
+        // Use handleFormattedResponse to transform response data
+      const formattedMessage = handleFormattedResponse(processResponse.data);
+
+      // Add the formatted message to messages
+      setMessages(prevMessages => [
+        ...prevMessages,
+        formattedMessage
+      ]);
+
+      console.log('Messages Added:', formattedMessage);
+
+    } catch (error) {
+      console.error('Error sending message:', error);
     }
-  };
-  
-  
+  }
+};
 
   const handleImageButtonClick = () => {
     if (fileInputRef.current) {
@@ -170,14 +151,20 @@ const Chatbot = () => {
                   className="mr-2 rounded-full"
                 />
               )}
-              <p
+              <div
                 className={`p-2 rounded-md ${
                   msg.type === 'user' ? 'bg-zinc-100' : 'bg-transparent'
                 }`}
               >
-                {msg.text}
-                {msg.imageURL && <Image src={msg.imageURL} alt="Uploaded" width={50} height={50} />}
-              </p>
+                <p>{msg.text}</p>
+                {msg.image_url && <Image src={msg.image_url} alt='uploaded' width={50} height={50}></Image>}
+                {msg.imageWithPrices && msg.imageWithPrices.map((imageWithPrice, idx) => (
+                  <div key={idx} className="flex items-center space-x-2">
+                    <Image src={imageWithPrice.imageURL} alt="Product" width={50} height={50} />
+                    <p>Price: ${imageWithPrice.price.toFixed(2)}</p>
+                  </div>
+                ))}
+              </div>
               {msg.type === 'user' && (
                 <Image
                   src={userImage}
