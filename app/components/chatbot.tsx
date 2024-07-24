@@ -31,6 +31,9 @@ const Chatbot = () => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const latestMessageRef = useRef<HTMLDivElement>(null);
 
+  const threadId = useThread();
+  console.log('Thread ID:', threadId);
+
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -109,7 +112,8 @@ const Chatbot = () => {
     setImageURL(''); // Reset the image URL
     setIsShrunk(true);
   };
-
+  };
+  
   const handleImageButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
