@@ -7,13 +7,14 @@ import { useHeader } from './Header';
 import Image from 'next/image';
 import userImage from '/public/user.png';
 import botImage from '/public/bot.png';
-import useThread from '../hooks/useThread'; // Import the custom hook
+import useThread from '../hooks/useThread';
+import { Product, handleFormattedResponse } from './handleResponse';
 
-// Define the type for the messages
 interface Message {
   type: 'user' | 'bot';
   text: string;
-  imageURL?: string; // Optional image URL parameter
+  imageURL?: string;
+  price?: number;
 }
 
 const Chatbot = () => {
@@ -22,10 +23,6 @@ const Chatbot = () => {
   const { setIsShrunk } = useHeader();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageDimensions, setImageDimensions] = useState<{
-    width: number;
-    height: number;
-  } | null>(null);
   const [imageURL, setImageURL] = useState<string>('');
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -37,18 +34,9 @@ const Chatbot = () => {
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Set up a local preview using a temporary URL
       const localImageUrl = URL.createObjectURL(file);
       setImagePreview(localImageUrl);
 
-      // Create an Image object to get its natural dimensions
-      const img = new window.Image();
-      img.src = localImageUrl;
-      img.onload = () => {
-        setImageDimensions({ width: 50, height: 50 });
-      };
-
-      // Upload the file to the server
       const formData = new FormData();
       formData.append('file', file);
 
@@ -63,7 +51,7 @@ const Chatbot = () => {
           }
         );
 
-        const { image_url } = response.data; // Ensure this matches the actual response key
+        const { image_url } = response.data;
         setImageURL(image_url);
         console.log('File uploaded, image URL:', image_url);
 
@@ -79,11 +67,9 @@ const Chatbot = () => {
 
     setIsShrunk(true);
     setInput('');
-    setImagePreview(null); // Reset image preview
-    setImageDimensions(null); // Reset image dimensions if needed
-    setImageURL(''); // Reset the image URL
+    setImagePreview(null);
+    setImageURL('');
 
-    // Show the user's message immediately
     setMessages((prevMessages) => [
       ...prevMessages,
       { type: 'user', text: input, imageURL: imageURL },
@@ -101,20 +87,46 @@ const Chatbot = () => {
         const processResponse = await axios.post('http://localhost:5328/process-request', params);
         console.log("Process response: ", processResponse.data);
 
-        //const response = await axios.post('/api/echo', { message: input, imageURL: imageURL || '' });
-      
-        // Update the state with the bot's response
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { type: 'bot', text: processResponse.data.message, imageURL: processResponse.data.imageURL},
-        ]);
-        } catch (error) {
-          console.error('Error sending message:', error);
-        }
+        const isArray = Array.isArray(processResponse.data);
+        const hasExpectedFormat = isArray && processResponse.data.every((item: Product) =>
+          typeof item === 'object' &&
+          'name' in item &&
+          'price' in item &&
+          'score' in item &&
+          'url' in item
+        );
 
+        if (hasExpectedFormat) {
+          console.log("Response is in the format of response1.");
+          const formattedData = handleFormattedResponse(processResponse.data);
+            const combinedResponse = formattedData.map(item => ({
+            type: 'bot',
+            text: item.text,
+            imageURL: item.imageURL,
+            price: item.price
+            }));
+
+            // Store all data in a single message object
+            setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              type: 'bot',
+              text: combinedResponse.map(item => item.text).join('\n'),
+              imageURL: combinedResponse.map(item => item.imageURL).join('\n'),
+              price: parseFloat(combinedResponse.map(item => item.price).join('\n')),
+            },
+            ]);
+
+            console.log('Messages Added:', combinedResponse);
+        } else {
+          console.log("Response is not in the format of response1.");
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    }
   };
-  };
-  
+
   const handleImageButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -123,7 +135,6 @@ const Chatbot = () => {
 
   const handleImageClose = () => {
     setImagePreview(null);
-    setImageDimensions(null);
   };
 
   useEffect(() => {
@@ -238,6 +249,4 @@ const Chatbot = () => {
   );
 };
 
-
 export default Chatbot;
-
