@@ -8,17 +8,24 @@ import Image from 'next/image';
 import userImage from '/public/user.png';
 import botImage from '/public/bot.png';
 import useThread from '../hooks/useThread';
-import { Product, handleFormattedResponse } from './handleResponse';
+import { handleFormattedResponse } from './handleResponse';
 
-interface Message {
+export interface Message {
   type: 'user' | 'bot';
   text: string;
   imageURL?: string;
   price?: number;
 }
 
+export interface Product {
+  name: string;
+  price: number;
+  url: string;
+}
+
 const Chatbot = () => {
   const [input, setInput] = useState<string>('');
+  const [product, setProduct] = useState<Product[]>([])
   const [messages, setMessages] = useState<Message[]>([]);
   const { setIsShrunk } = useHeader();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,17 +71,18 @@ const Chatbot = () => {
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input) return;
-
+  
     setIsShrunk(true);
     setInput('');
     setImagePreview(null);
     setImageURL('');
-
-    setMessages((prevMessages) => [
+  
+    // Send user message
+    setMessages(prevMessages => [
       ...prevMessages,
-      { type: 'user', text: input, imageURL: imageURL },
+      { type: 'user', text: input, imageURL: imageURL }
     ]);
-
+  
     if (threadId) {
       const params = {
         user_text: input,
@@ -82,42 +90,35 @@ const Chatbot = () => {
         thread_id: threadId,
         assistant_id: process.env.NEXT_PUBLIC_AZURE_ASSISTANT_INTENT
       };
-
+  
       try {
         const processResponse = await axios.post('http://localhost:5328/process-request', params);
         console.log("Process response: ", processResponse.data);
-
+  
         const isArray = Array.isArray(processResponse.data);
         const hasExpectedFormat = isArray && processResponse.data.every((item: Product) =>
           typeof item === 'object' &&
           'name' in item &&
           'price' in item &&
-          'score' in item &&
           'url' in item
         );
-
+  
         if (hasExpectedFormat) {
           console.log("Response is in the format of response1.");
           const formattedData = handleFormattedResponse(processResponse.data);
-            const combinedResponse = formattedData.map(item => ({
-            type: 'bot',
-            text: item.text,
-            imageURL: item.imageURL,
-            price: item.price
-            }));
-
-            // Store all data in a single message object
-            setMessages((prevMessages) => [
+  
+          // Add each formatted message individually
+          setMessages(prevMessages => [
             ...prevMessages,
-            {
+            ...formattedData.map(item => ({
               type: 'bot',
-              text: combinedResponse.map(item => item.text).join('\n'),
-              imageURL: combinedResponse.map(item => item.imageURL).join('\n'),
-              price: parseFloat(combinedResponse.map(item => item.price).join('\n')),
-            },
-            ]);
-
-            console.log('Messages Added:', combinedResponse);
+              // text: item.text,
+              imageURL: item.imageURL,
+              price: item.price
+            }) as Message)  // Type assertion to match Message type
+          ]);
+  
+          console.log('Messages Added:', formattedData);
         } else {
           console.log("Response is not in the format of response1.");
         }
@@ -126,6 +127,8 @@ const Chatbot = () => {
       }
     }
   };
+  
+  
 
   const handleImageButtonClick = () => {
     if (fileInputRef.current) {

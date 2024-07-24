@@ -1,21 +1,13 @@
-export interface Product {
-    name: string;
-    price: number;
-    score: number;
-    url: string;
-  }
+'use client'
+
+import { Message, Product } from './chatbot';
   
-  export interface FormattedMessage {
-    text: string;
-    imageURL: string;
-    price: number;
-  }
-  
-  export function handleFormattedResponse(data: Product[]): FormattedMessage[] {
+  export function handleFormattedResponse(data: Product[]): Message[] {
     return data.map(product => ({
+      type: 'bot',
       text: product.name,
       imageURL: product.url,
-      price: product.price,
+      price: product.price
     }));
   }
   
