@@ -7,6 +7,7 @@ import { useHeader } from './Header';
 import Image from 'next/image';
 import userImage from '/public/user.png';
 import botImage from '/public/bot.png';
+import useThread from '../hooks/useThread'; // Import the custom hook
 
 // Define the type for the messages
 interface Message {
@@ -26,6 +27,11 @@ const Chatbot = () => {
     height: number;
   } | null>(null);
   const [imageURL, setImageURL] = useState<string>('');
+ // const [assistantId] = useState<string>(process.env.AZURE_ASSISTANT_INTENT || ''); // Provide a default value for assistantId or remove the line if not needed
+
+   // Use the custom hook to get the thread ID
+  const threadId = useThread();
+  console.log('Thread ID:', threadId);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -71,24 +77,39 @@ const Chatbot = () => {
     e.preventDefault();
     if (!input) return;
 
-    try {
-      const response = await axios.post('/api/echo', { message: input, imageURL: imageURL || '' });
+    // Show the user's message immediately
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { type: 'user', text: input },
+    ]);
 
-      // Set new messages in the state with type annotations
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: 'user', text: input, imageURL: imageURL || '' },
-        { type: 'bot', text: response.data.message, imageURL: response.data.imageURL},
-      ]);
+    if (threadId) {
+      const params = {
+        user_text: input,
+        img_url: imageURL || null,
+        thread_id: threadId,
+        assistant_id: process.env.NEXT_PUBLIC_AZURE_ASSISTANT_INTENT
+      };
 
+      try {
+        const processResponse = await axios.post('http://localhost:5328/process-request', params);
+        console.log("Process response: ", processResponse.data);
 
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
+        //const response = await axios.post('/api/echo', { message: input, imageURL: imageURL || '' });
+      
+        // Update the state with the bot's response
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { type: 'bot', text: processResponse.data.message, imageURL: processResponse.data.imageURL},
+        ]);
+        } catch (error) {
+          console.error('Error sending message:', error);
+        }
 
-    setInput('');
-    setIsShrunk(true);
+        setInput('');
+        setIsShrunk(true);
   };
+};
 
   
 
@@ -206,4 +227,6 @@ const Chatbot = () => {
   );
 };
 
+
 export default Chatbot;
+
