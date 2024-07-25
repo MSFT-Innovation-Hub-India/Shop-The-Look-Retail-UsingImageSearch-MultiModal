@@ -32,7 +32,8 @@ export function handleFormattedResponse(data: Product[] | FollowUp): Message {
       image_url: '',
       imageWithPrices: data.map(product => ({
         imageURL: product.url,
-        price: product.price
+        price: product.price,
+        name: product.name // Ensure `name` is included
       }))
     };
   } else {

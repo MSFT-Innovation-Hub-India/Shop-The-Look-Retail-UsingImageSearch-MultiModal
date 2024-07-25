@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { IoMicOutline, IoImagesOutline, IoSend, IoClose } from 'react-icons/io5';
+import { RiShoppingBag4Fill, RiShoppingCart2Line } from "react-icons/ri";
 import axios from 'axios';
 import { useHeader } from './Header';
 import Image from 'next/image';
@@ -14,7 +15,7 @@ export interface Message {
   type: 'user' | 'bot';
   text: string;
   image_url: string;
-  imageWithPrices?: {imageURL: string; price: number}[]
+  imageWithPrices?: { imageURL: string; price: number; name: string }[];
 }
 
 export interface Product {
@@ -26,6 +27,7 @@ export interface Product {
 export interface FollowUp {
   value: string;
 }
+
 const Chatbot = () => {
   const [input, setInput] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -33,6 +35,9 @@ const Chatbot = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageURL, setImageURL] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalImageURL, setModalImageURL] = useState<string | null>(null);
+  const [modalProductDescription, setModalProductDescription] = useState<string>('');
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const latestMessageRef = useRef<HTMLDivElement>(null);
@@ -98,21 +103,21 @@ const Chatbot = () => {
         console.log("Process response: ", processResponse.data);
 
         // Use handleFormattedResponse to transform response data
-      const formattedMessage = handleFormattedResponse(processResponse.data);
+        const formattedMessage = handleFormattedResponse(processResponse.data);
 
-      // Add the formatted message to messages
-      setMessages(prevMessages => [
-        ...prevMessages,
-        formattedMessage
-      ]);
+        // Add the formatted message to messages
+        setMessages(prevMessages => [
+          ...prevMessages,
+          formattedMessage
+        ]);
 
-      console.log('Messages Added:', formattedMessage);
+        console.log('Messages Added:', formattedMessage);
 
-    } catch (error) {
-      console.error('Error sending message:', error);
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
     }
-  }
-};
+  };
 
   const handleImageButtonClick = () => {
     if (fileInputRef.current) {
@@ -122,6 +127,16 @@ const Chatbot = () => {
 
   const handleImageClose = () => {
     setImagePreview(null);
+  };
+
+  const openModal = (imageURL: string, description: string) => {
+    setModalImageURL(imageURL);
+    setModalProductDescription(description);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   useEffect(() => {
@@ -164,14 +179,18 @@ const Chatbot = () => {
                 {msg.imageWithPrices && (
                   <div className="flex space-x-2 overflow-x-auto">
                     {msg.imageWithPrices.map((imageWithPrice, idx) => (
-                      <div key={idx} className="flex flex-col items-center border border-gray-300 rounded">
-                        <Image 
-                        src={imageWithPrice.imageURL} 
-                        alt="Product" 
-                        width={300} 
-                        height={300} 
-                        className="border border-gray-300 rounded" 
-                        objectFit='cover'
+                      <div
+                        key={idx}
+                        className="flex flex-col items-center border border-gray-300 rounded cursor-pointer"
+                        onClick={() => openModal(imageWithPrice.imageURL, imageWithPrice.name)}
+                      >
+                        <Image
+                          src={imageWithPrice.imageURL}
+                          alt="Product"
+                          width={300}
+                          height={300}
+                          className="border border-gray-300 rounded"
+                          objectFit='cover'
                         />
                         <p>₹{imageWithPrice.price.toFixed(2)}</p>
                       </div>
@@ -249,6 +268,51 @@ const Chatbot = () => {
           onChange={handleFileSelect}
         />
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="relative bg-white rounded-lg w-[80%] max-w-4xl p-4 flex">
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 text-gray-600"
+            >
+              <IoClose size={24} />
+            </button>
+            {modalImageURL && (
+              <div className="flex-shrink-0 w-1/2 pr-4">
+                <Image
+                  src={modalImageURL}
+                  alt="Modal Image"
+                  width={600}
+                  height={600}
+                  className="w-full h-auto rounded"
+                  objectFit='cover'
+                />
+              </div>
+            )}
+            {modalProductDescription && (
+              <div className="flex-1">
+                <p className="text-lg pt-9 mb-4">{modalProductDescription}</p>
+                <div className="flex flex-col items-start space-y-2">
+                <button
+                  onClick={closeModal}
+                  className="bg-header text-white px-4 py-2 rounded-lg hover:bg-black flex items-center"
+                >
+                  <RiShoppingCart2Line size={15} className="mr-2" />
+                  Add to Cart
+                </button>
+                <button
+                  onClick={closeModal}
+                  className="bg-header text-white px-4 py-2 rounded-lg hover:bg-black flex items-center"
+                >
+                  <RiShoppingBag4Fill size={15} className="mr-2" />
+                  Buy now
+                </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
