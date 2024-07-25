@@ -36,12 +36,25 @@ export function handleFormattedResponse(data: Product[] | FollowUp): Message {
       }))
     };
   } else {
-    // Handle FollowUp object (assume data has a 'value' property)
-    console.log('Data is a FollowUp object with a value property.');
-    console.log('FollowUp value:', (data as FollowUp).value); // Log the value from FollowUp
+    // Assume data is a FollowUp and extract value
+    let followUpValue: string;
+
+    if (typeof data === 'string') {
+      try {
+        const parsedData: FollowUp = JSON.parse(data);
+        followUpValue = parsedData.value;
+      } catch (e) {
+        console.log('Error parsing data as JSON:', e);
+        followUpValue = data;
+      }
+    } else {
+      followUpValue = data.value;
+    }
+
+    console.log('FollowUp value:', followUpValue); // Log the value from FollowUp
     return {
       type: 'bot',
-      text: (data as FollowUp).value, // Explicitly cast data to FollowUp to access value
+      text: followUpValue,
       image_url: '',
       imageWithPrices: []
     };
