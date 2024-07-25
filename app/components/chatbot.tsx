@@ -145,6 +145,15 @@ const Chatbot = () => {
     }
   }, [messages]);
 
+  const renderText = (text: string) => {
+    // Replace Markdown-style bold syntax with HTML <strong> tags
+    const formattedText = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Handle bold text
+      .replace(/\n/g, '<br>'); // Replace newlines with <br> tags
+    return { __html: formattedText };
+  };
+
+
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="w-full flex flex-col items-center">
@@ -174,7 +183,11 @@ const Chatbot = () => {
                   msg.type === 'user' ? 'bg-zinc-100' : 'bg-transparent'
                 }`}
               >
-                <p>{msg.text}</p>
+                      {msg.type === 'bot' ? (
+                     <p dangerouslySetInnerHTML={renderText(msg.text)}></p>
+                  ) : (
+                    <p>{msg.text}</p>
+                  )}
                 {msg.image_url && <Image src={msg.image_url} alt='uploaded' width={75} height={75} className='justify-center'></Image>}
                 {msg.imageWithPrices && (
                   <div className="flex space-x-2 overflow-x-auto">
