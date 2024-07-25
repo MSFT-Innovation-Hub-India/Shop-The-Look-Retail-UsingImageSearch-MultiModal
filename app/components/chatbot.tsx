@@ -23,6 +23,9 @@ export interface Product {
   url: string;
 }
 
+export interface FollowUp {
+  value: string;
+}
 const Chatbot = () => {
   const [input, setInput] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
