@@ -160,13 +160,24 @@ const Chatbot = () => {
                 }`}
               >
                 <p>{msg.text}</p>
-                {msg.image_url && <Image src={msg.image_url} alt='uploaded' width={50} height={50}></Image>}
-                {msg.imageWithPrices && msg.imageWithPrices.map((imageWithPrice, idx) => (
-                  <div key={idx} className="flex items-center space-x-2">
-                    <Image src={imageWithPrice.imageURL} alt="Product" width={50} height={50} />
-                    <p>Price: ${imageWithPrice.price.toFixed(2)}</p>
+                {msg.image_url && <Image src={msg.image_url} alt='uploaded' width={75} height={75} className='justify-center'></Image>}
+                {msg.imageWithPrices && (
+                  <div className="flex space-x-2 overflow-x-auto">
+                    {msg.imageWithPrices.map((imageWithPrice, idx) => (
+                      <div key={idx} className="flex flex-col items-center border border-gray-300 rounded">
+                        <Image 
+                        src={imageWithPrice.imageURL} 
+                        alt="Product" 
+                        width={300} 
+                        height={300} 
+                        className="border border-gray-300 rounded" 
+                        objectFit='cover'
+                        />
+                        <p>₹{imageWithPrice.price.toFixed(2)}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
               {msg.type === 'user' && (
                 <Image
