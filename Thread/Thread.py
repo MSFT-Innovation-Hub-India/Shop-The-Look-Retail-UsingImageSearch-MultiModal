@@ -242,7 +242,6 @@ def process_follow_up(client, thread_id, user_text, assistant_id):
                     
             # Create the dictionary
             response_dict = {
-                "assistant_id": assistant_id,
                 "value": followUp_response
             }
 
