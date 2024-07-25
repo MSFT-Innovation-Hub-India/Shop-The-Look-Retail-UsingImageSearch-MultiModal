@@ -10,6 +10,7 @@ import userImage from '/public/user.png';
 import botImage from '/public/bot.png';
 import useThread from '../hooks/useThread';
 import { handleFormattedResponse } from './handleResponse';
+import styles from './chatbot.module.css';
 
 export interface Message {
   type: 'user' | 'bot';
@@ -31,6 +32,7 @@ export interface FollowUp {
 const Chatbot = () => {
   const [input, setInput] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
   const { setIsShrunk } = useHeader();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -79,6 +81,7 @@ const Chatbot = () => {
     e.preventDefault();
     if (!input) return;
   
+    setLoading(true); // Set loading to true
     setIsShrunk(true);
     setInput('');
     setImagePreview(null);
@@ -87,7 +90,7 @@ const Chatbot = () => {
     // Send user message
     setMessages(prevMessages => [
       ...prevMessages,
-      { type: 'user', text: input, image_url: imageURL}
+      { type: 'user', text: input, image_url: imageURL }
     ]);
   
     if (threadId) {
@@ -115,6 +118,8 @@ const Chatbot = () => {
 
       } catch (error) {
         console.error('Error sending message:', error);
+      } finally {
+        setLoading(false); // Set loading to false
       }
     }
   };
@@ -153,7 +158,6 @@ const Chatbot = () => {
     return { __html: formattedText };
   };
 
-
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="w-full flex flex-col items-center">
@@ -183,11 +187,11 @@ const Chatbot = () => {
                   msg.type === 'user' ? 'bg-zinc-100' : 'bg-transparent'
                 }`}
               >
-                      {msg.type === 'bot' ? (
-                     <p dangerouslySetInnerHTML={renderText(msg.text)}></p>
-                  ) : (
-                    <p>{msg.text}</p>
-                  )}
+                {msg.type === 'bot' ? (
+                  <p dangerouslySetInnerHTML={renderText(msg.text)}></p>
+                ) : (
+                  <p>{msg.text}</p>
+                )}
                 {msg.image_url && <Image src={msg.image_url} alt='uploaded' width={75} height={75} className='justify-center'></Image>}
                 {msg.imageWithPrices && (
                   <div className="flex space-x-2 overflow-x-auto">
@@ -222,6 +226,12 @@ const Chatbot = () => {
               )}
             </div>
           ))}
+          {loading && (
+            <div className="flex justify-center items-center py-4">
+              <p className="text-gray-500 mr-2">Getting your response...</p>
+              <div className={styles.spinner}></div>
+            </div>
+          )}
         </div>
         <form
           onSubmit={sendMessage}
@@ -306,20 +316,20 @@ const Chatbot = () => {
               <div className="flex-1">
                 <p className="text-lg pt-9 mb-4">{modalProductDescription}</p>
                 <div className="flex flex-col items-start space-y-2">
-                <button
-                  onClick={closeModal}
-                  className="bg-header text-white px-4 py-2 rounded-lg hover:bg-black flex items-center"
-                >
-                  <RiShoppingCart2Line size={15} className="mr-2" />
-                  Add to Cart
-                </button>
-                <button
-                  onClick={closeModal}
-                  className="bg-header text-white px-4 py-2 rounded-lg hover:bg-black flex items-center"
-                >
-                  <RiShoppingBag4Fill size={15} className="mr-2" />
-                  Buy now
-                </button>
+                  <button
+                    onClick={closeModal}
+                    className="bg-header text-white px-4 py-2 rounded-lg hover:bg-black flex items-center"
+                  >
+                    <RiShoppingCart2Line size={15} className="mr-2" />
+                    Add to Cart
+                  </button>
+                  <button
+                    onClick={closeModal}
+                    className="bg-header text-white px-4 py-2 rounded-lg hover:bg-black flex items-center"
+                  >
+                    <RiShoppingBag4Fill size={15} className="mr-2" />
+                    Buy now
+                  </button>
                 </div>
               </div>
             )}
