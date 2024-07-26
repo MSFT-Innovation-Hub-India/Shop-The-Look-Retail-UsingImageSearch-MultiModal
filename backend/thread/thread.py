@@ -13,6 +13,7 @@ from requests.models import Response
 from flask_cors import CORS
 import os
 import logging 
+import threading
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -142,10 +143,6 @@ def create_message(
     metadata: Optional[dict] = None,
     message_id: Optional[str] = None,
 ) -> any:
-    if metadata is None:
-        metadata = {}
-    if file_ids is None:
-        file_ids = []
 
     if client is None:
         print("Client parameter is required.")
@@ -158,21 +155,6 @@ def create_message(
     try:
         if message_id is not None:
             return client.beta.threads.messages.retrieve(thread_id=thread_id, message_id=message_id)
-
-        if file_ids is not None and len(file_ids) > 0 and metadata is not None and len(metadata) > 0:
-            return client.beta.threads.messages.create(
-                thread_id=thread_id, role=role, content=content, file_ids=file_ids, metadata=metadata
-            )
-
-        if file_ids is not None and len(file_ids) > 0:
-            return client.beta.threads.messages.create(
-                thread_id=thread_id, role=role, content=content, file_ids=file_ids
-            )
-
-        if metadata is not None and len(metadata) > 0:
-            return client.beta.threads.messages.create(
-                thread_id=thread_id, role=role, content=content, metadata=metadata
-            )
 
         return client.beta.threads.messages.create(thread_id=thread_id, role=role, content=content)
 
@@ -194,7 +176,7 @@ def retrieve_and_print_messages(
         data = json.loads(messages.model_dump_json(indent=2))
         assistant_response = data['data'][0]['content'][0]['text']['value']
         display_role = {"user": "User query", "assistant": "Assistant response"}
-
+        '''
         prev_role = None
 
         if verbose:
@@ -221,6 +203,7 @@ def retrieve_and_print_messages(
                     else:
                         print("{}:\n{}".format(display_role[md.role], txt_val))
             prev_role = md.role
+            '''
         return assistant_response,messages
     except Exception as e:
         print(e)
@@ -252,6 +235,22 @@ def process_follow_up(client, thread_id, user_text, assistant_id):
             print(response_json)
 
             return response_json
+
+def process_search_response(client, thread_id, assistant_response, search_response):
+    formatted_response = ""
+    for item in search_response:
+        formatted_response += (
+            f"Name: {item['name']}\n"
+            f"Price: {item['price']}\n"
+            f"Score: {item['score']}\n"
+            f"URL: {item['url']}\n\n"
+        )
+    formatted_search_response = formatted_response.strip()
+
+    # Create a message with the search results
+    create_message(client, thread_id, role="user", content=assistant_response)
+    create_message(client, thread_id, role="assistant", content=formatted_search_response)
+
 
 @app.route('/create-thread', methods=['POST'])
 def create_thread():
@@ -307,22 +306,12 @@ def process_request():
     else:
         # Call the new function to handle the assistant response
         search_response = send_request_to_search_endpoint(assistant_response, img_url)
-        formatted_response = ""
-        for item in search_response:
-            formatted_response += (
-                f"Name: {item['name']}\n"
-                f"Price: {item['price']}\n"
-                f"Score: {item['score']}\n"
-                f"URL: {item['url']}\n\n"
-            )
-        #Format the json result into a string so it can be stored in a thread
-        formatted_search_response = formatted_response.strip()
-
-        print("Formatted Search Response", formatted_search_response)
-
-        # Create a message with the search results
-        create_message(client,thread_id, role="user", content=assistant_response)
-        create_message(client, thread_id, role="assistant", content=formatted_search_response)
+        
+         # Start background thread for processing the search response
+        threading.Thread(
+            target=process_search_response,
+            args=(client, thread_id, assistant_response, search_response)
+        ).start()
         
         return jsonify(search_response)
 
