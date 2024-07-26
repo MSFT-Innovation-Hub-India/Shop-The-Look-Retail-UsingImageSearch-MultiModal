@@ -32,7 +32,7 @@ export function handleFormattedResponse(data: Product[] | FollowUp): Message {
       image_url: '',
       imageWithPrices: data.map(product => ({
         imageURL: product.url,
-        price: product.price,
+        price: parseInt(String(product.price)),
         name: product.name // Ensure `name` is included
       }))
     };
@@ -52,7 +52,7 @@ export function handleFormattedResponse(data: Product[] | FollowUp): Message {
       followUpValue = data.value;
     }
 
-    console.log('FollowUp value:', followUpValue); // Log the value from FollowUp
+    //console.log('FollowUp value:', followUpValue); // Log the value from FollowUp
     return {
       type: 'bot',
       text: followUpValue,
