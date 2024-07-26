@@ -1,0 +1,23 @@
+{
+    "users": [
+        {"name": "Pranav",
+        "orders": [
+            {
+                "order_id": 1,
+                "order_date": "2024-07-10",
+                "order_items": [
+                    {
+                        "item_id": 1,
+                        "item_name": "Roadster Shirt for Men, Black",
+                        "item_price": 2499
+                    },
+                    {
+                        "item_id": 2,
+                        "item_name": "Black Jeans",
+                        "item_price": 1500
+                    }
+                ]
+            }
+        ]}
+    ]
+}
