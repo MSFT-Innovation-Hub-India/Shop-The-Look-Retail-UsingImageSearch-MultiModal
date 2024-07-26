@@ -41,11 +41,17 @@ const Chatbot = () => {
   const [modalImageURL, setModalImageURL] = useState<string | null>(null);
   const [modalProductDescription, setModalProductDescription] = useState<string>('');
 
+  const [isClicked, setIsClicked] = useState(false);
+
+  const [micButtonColor, setMicButtonColor] = useState<string>(''); // New state for mic button color
+
+  // New state for recognized text
+  const [recognizedText, setRecognizedText] = useState<string>('');
+
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const latestMessageRef = useRef<HTMLDivElement>(null);
 
   const threadId = useThread();
-  console.log('Thread ID:', threadId);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -95,7 +101,7 @@ const Chatbot = () => {
   
     if (threadId) {
       const params = {
-        user_text: input,
+        user_text: input || recognizedText,
         img_url: imageURL || null,
         thread_id: threadId,
         assistant_id: process.env.NEXT_PUBLIC_AZURE_ASSISTANT_INTENT
@@ -158,6 +164,36 @@ const Chatbot = () => {
     return { __html: formattedText };
   };
 
+  // Function to handle the mic button click
+  // Function to handle the mic button click
+const handleMicMouseDown = async () => {
+  setIsClicked(true);
+  setMicButtonColor('red'); // Set mic button color to red
+  try {
+    const response = await axios.post('http://localhost:5000/listen'); 
+    if (response.status === 200) {
+      const { recognized_text } = response.data;
+      console.log('Recognized Text:', recognized_text);
+      setRecognizedText(recognized_text);
+
+      // Update input state with recognized text
+      setInput(recognized_text);
+
+    } else {
+      console.error('Error recognizing speech:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error fetching from backend:', error);
+  } finally {
+    setIsClicked(false);
+  }
+};
+
+const handleMicMouseUp = async () => {
+    setIsClicked(false);
+    setMicButtonColor(''); // Reset mic button color
+  };
+
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="w-full flex flex-col items-center">
@@ -209,7 +245,7 @@ const Chatbot = () => {
                           className="border border-gray-300 rounded"
                           objectFit='cover'
                         />
-                        <p>₹{imageWithPrice.price.toFixed(2)}</p>
+                        <p>₹{Math.floor(imageWithPrice.price)}</p>
                       </div>
                     ))}
                   </div>
@@ -260,9 +296,14 @@ const Chatbot = () => {
             </div>
           )}
           <div className="flex items-center justify-center py-2 space-x-2">
-            <button type="button" className="p-2 bg-transparent">
-              <IoMicOutline color="white" size={30} />
-            </button>
+          <button
+            type="button"
+            onMouseDown={handleMicMouseDown}
+            onMouseUp={handleMicMouseUp}
+            className={`text-2xl text-white p-2 rounded-full mx-2 ${micButtonColor ? 'bg-red-500' : ''}`} // Apply red color when pressed
+          >
+      <IoMicOutline color="white" size={30} />
+    </button>
             <button
               type="button"
               className="p-2 bg-transparent"
