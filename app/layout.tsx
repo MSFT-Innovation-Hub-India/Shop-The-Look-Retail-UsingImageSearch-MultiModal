@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ChakraProvider } from '@chakra-ui/react';
-import { Almarai } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { HeaderProvider } from './components/Header';
 
-const almarai = Almarai({
-  subsets: ['arabic'],
-  weight: ['400', '700'],
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '700'], // You can add more weights if needed
 });
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={almarai.className}>
+      <body className={inter.className}>
         <ChakraProvider>
           <HeaderProvider>
             {children}
