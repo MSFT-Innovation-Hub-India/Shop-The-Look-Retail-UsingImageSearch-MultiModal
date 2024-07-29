@@ -44,12 +44,10 @@ def speak():
 @app.route('/listen', methods=['POST'])
 def listen():
     print("Receieved request")
-    speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
-    result = speech_recognizer.recognize_once_async().get()
-    print(result.text)
-    if result.reason == speechsdk.ResultReason.RecognizedSpeech:
-        return result.text
-    return None
+    recognized_text = from_mic(speech_config)
+    if recognized_text:
+        return jsonify({"text": recognized_text}), 200
+    return jsonify({"error": "No speech detected"}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
