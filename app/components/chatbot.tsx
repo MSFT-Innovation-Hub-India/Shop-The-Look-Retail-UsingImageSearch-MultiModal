@@ -12,10 +12,6 @@ import useThread from '../hooks/useThread';
 import { handleFormattedResponse } from './handleResponse';
 import styles from './chatbot.module.css';
 
-import { VscRobot } from "react-icons/vsc";
-import { FaRegUser } from "react-icons/fa";
-
-
 export interface Message {
   type: 'user' | 'bot';
   text: string;
