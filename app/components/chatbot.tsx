@@ -217,7 +217,13 @@ const handleMicMouseUp = async () => {
             >
               {msg.type === 'bot' && (
                 <div className="ml-2 rounded-full flex items-center justify-center" style={{ width: 48, height: 48 }}>
-                <VscRobot size={48} className="mr-2 rounded-full" />
+                <Image
+                  src={botImage}
+                  alt="Bot"
+                  width={48}
+                  height={48}
+                  className="mr-2 rounded-full"
+                />
                 </div>
               )}
               <div
@@ -255,7 +261,13 @@ const handleMicMouseUp = async () => {
               </div>
               {msg.type === 'user' && (
                 <div className="ml-2 rounded-full flex items-center justify-center" style={{ width: 48, height: 48 }}>
-                <FaRegUser size={34} />
+                <Image
+                  src={userImage}
+                  alt="User"
+                  width={48}
+                  height={48}
+                  className="mr-2 rounded-full"
+                />
               </div>
               )}
             </div>
