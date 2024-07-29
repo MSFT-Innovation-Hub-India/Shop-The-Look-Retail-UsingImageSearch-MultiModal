@@ -136,6 +136,52 @@ const Chatbot = () => {
     }
   };
 
+  const sendSpeechMessage = async (input:string) => {
+    if (!input) return;
+  
+    setLoading(true); // Set loading to true
+    setIsShrunk(true);
+    setInput('');
+    setImagePreview(null);
+    setImageURL('');
+  
+    // Send user message
+    setMessages(prevMessages => [
+      ...prevMessages,
+      { type: 'user', text: input, image_url: imageURL }
+    ]);
+  
+    if (threadId) {
+      const params = {
+        user_text: input || recognizedText,
+        img_url: imageURL || null,
+        thread_id: threadId,
+        assistant_id: process.env.NEXT_PUBLIC_AZURE_ASSISTANT_INTENT
+      };
+  
+      try {
+        const processResponse = await axios.post(process.env.NEXT_PUBLIC_PROCESS_REQUEST_ENDPOINT || '', params);
+        console.log("Process response: ", processResponse.data);
+
+        // Use handleFormattedResponse to transform response data
+        const formattedMessage = handleFormattedResponse(processResponse.data);
+
+        // Add the formatted message to messages
+        setMessages(prevMessages => [
+          ...prevMessages,
+          formattedMessage
+        ]);
+
+        console.log('Messages Added:', formattedMessage);
+
+      } catch (error) {
+        console.error('Error sending message:', error);
+      } finally {
+        setLoading(false); // Set loading to false
+      }
+    }
+  };
+
   const handleImageButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -176,15 +222,12 @@ const handleMicMouseDown = async () => {
   setIsClicked(true);
   setMicButtonColor('red'); // Set mic button color to red
   try {
-    const response = await axios.post('http://localhost:5000/listen'); 
+    const response = await axios.post(process.env.NEXT_PUBLIC_SPEECH_TO_TEXT_ENDPOINT || ''); 
     if (response.status === 200) {
-      const { recognized_text } = response.data;
+      const { text: recognized_text } = response.data;
       console.log('Recognized Text:', recognized_text);
       setRecognizedText(recognized_text);
-
-      // Update input state with recognized text
-      setInput(recognized_text);
-
+      sendSpeechMessage(recognized_text);
     } else {
       console.error('Error recognizing speech:', response.statusText);
     }
