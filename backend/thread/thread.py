@@ -37,14 +37,12 @@ client = AzureOpenAI(
 )
 
 def send_request_to_search_endpoint(assistant_response, img_url):
-    if assistant_response == "This is a follow up":
-        return {"status": "Follow up detected"}
-    else:
-        text_query = assistant_response  # Assuming this is the vector search query
-        response = requests.post('https://search.gentleplant-806536f4.swedencentral.azurecontainerapps.io/search', json={"text_query": text_query, "image_url": img_url})
-        #result = response.json()
-        return response.json()
-        #return {"status": "Request processed successfully", "result": result}
+    text_query = assistant_response  # Assuming this is the vector search query
+    search_endpoint = os.getenv("NEXT_PUBLIC_SEARCH_ENDPOINT")
+    response = requests.post(search_endpoint, json={"text_query": text_query, "image_url": img_url})
+    #result = response.json()
+    return response.json()
+    #return {"status": "Request processed successfully", "result": result}
     
 def analyze_image(img_url):
     # Make an API call to OpenAI to analyze the image
@@ -171,8 +169,10 @@ def retrieve_and_print_messages(
         return None
     try:
         messages = client.beta.threads.messages.list(thread_id=thread_id)
-        with open('messages.json', 'w') as file:
-            file.write(messages.model_dump_json(indent=2))
+
+        #with open('messages.json', 'w') as file:
+            #file.write(messages.model_dump_json(indent=2))
+
         data = json.loads(messages.model_dump_json(indent=2))
         assistant_response = data['data'][0]['content'][0]['text']['value']
         display_role = {"user": "User query", "assistant": "Assistant response"}
