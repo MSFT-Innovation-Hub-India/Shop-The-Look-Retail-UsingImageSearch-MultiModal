@@ -311,7 +311,7 @@ const handleMicMouseUp = async () => {
             </button>
             <input
               type="search"
-              placeholder="How can I help"
+              placeholder="How can I help you today?"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="w-[85%] p-4 rounded-3xl bg-black text-white focus:outline-none"
