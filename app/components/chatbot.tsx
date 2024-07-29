@@ -255,7 +255,6 @@ const handleMicMouseUp = async () => {
               }`}
             >
               {msg.type === 'bot' && (
-                <div className="ml-2 rounded-full flex items-center justify-center" style={{ width: 48, height: 48 }}>
                 <Image
                   src={botImage}
                   alt="Bot"
@@ -263,15 +262,16 @@ const handleMicMouseUp = async () => {
                   height={48}
                   className="mr-2 rounded-full"
                 />
-                </div>
               )}
               <div
-                className={`p-2 rounded-md ${
+                className={`p-2 rounded-md  ${
+                  
                   msg.type === 'user' ? 'bg-zinc-100' : 'bg-transparent'
+                  
                 }`}
               >
                 {msg.type === 'bot' ? (
-                  <p dangerouslySetInnerHTML={renderText(msg.text)}></p>
+                  <p dangerouslySetInnerHTML={renderText(msg.text)} ></p>
                 ) : (
                   <p>{msg.text}</p>
                 )}
@@ -299,7 +299,6 @@ const handleMicMouseUp = async () => {
                 )}
               </div>
               {msg.type === 'user' && (
-                <div className="ml-2 rounded-full flex items-center justify-center" style={{ width: 48, height: 48 }}>
                 <Image
                   src={userImage}
                   alt="User"
@@ -307,7 +306,6 @@ const handleMicMouseUp = async () => {
                   height={48}
                   className="mr-2 rounded-full"
                 />
-              </div>
               )}
             </div>
           ))}
