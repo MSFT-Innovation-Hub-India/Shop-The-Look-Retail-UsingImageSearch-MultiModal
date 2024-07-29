@@ -12,6 +12,10 @@ import useThread from '../hooks/useThread';
 import { handleFormattedResponse } from './handleResponse';
 import styles from './chatbot.module.css';
 
+import { VscRobot } from "react-icons/vsc";
+import { FaRegUser } from "react-icons/fa";
+
+
 export interface Message {
   type: 'user' | 'bot';
   text: string;
@@ -51,6 +55,8 @@ const Chatbot = () => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const latestMessageRef = useRef<HTMLDivElement>(null);
 
+  //ENDPOINTS FOR EACH MICROSERVICE
+
   const threadId = useThread();
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +70,7 @@ const Chatbot = () => {
 
       try {
         const response = await axios.post(
-          'https://search.gentleplant-806536f4.swedencentral.azurecontainerapps.io/upload_image',
+          process.env.NEXT_PUBLIC_UPLOAD_IMAGE_ENDPOINT || '',
           formData,
           {
             headers: {
@@ -108,7 +114,7 @@ const Chatbot = () => {
       };
   
       try {
-        const processResponse = await axios.post('http://localhost:5328/process-request', params);
+        const processResponse = await axios.post(process.env.NEXT_PUBLIC_PROCESS_REQUEST_ENDPOINT || '', params);
         console.log("Process response: ", processResponse.data);
 
         // Use handleFormattedResponse to transform response data
@@ -210,13 +216,9 @@ const handleMicMouseUp = async () => {
               }`}
             >
               {msg.type === 'bot' && (
-                <Image
-                  src={botImage}
-                  alt="Bot"
-                  width={48}
-                  height={48}
-                  className="mr-2 rounded-full"
-                />
+                <div className="ml-2 rounded-full flex items-center justify-center" style={{ width: 48, height: 48 }}>
+                <VscRobot size={48} className="mr-2 rounded-full" />
+                </div>
               )}
               <div
                 className={`p-2 rounded-md ${
@@ -252,13 +254,9 @@ const handleMicMouseUp = async () => {
                 )}
               </div>
               {msg.type === 'user' && (
-                <Image
-                  src={userImage}
-                  alt="User"
-                  width={48}
-                  height={48}
-                  className="ml-2 rounded-full"
-                />
+                <div className="ml-2 rounded-full flex items-center justify-center" style={{ width: 48, height: 48 }}>
+                <FaRegUser size={34} />
+              </div>
               )}
             </div>
           ))}

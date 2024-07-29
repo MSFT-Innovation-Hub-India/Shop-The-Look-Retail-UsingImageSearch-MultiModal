@@ -11,7 +11,7 @@ const useThread = () => {
       setThreadId(storedThreadId);
       console.log('Stored Thread ID:', storedThreadId);
     } else {
-      axios.post('http://localhost:5328/create-thread')
+      axios.post(process.env.NEXT_PUBLIC_CREATE_THREAD_ENDPOINT || '')
         .then(response => {
           if (response.status === 200) {
             const thread_id = response.data.thread_id;
