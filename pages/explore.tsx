@@ -37,7 +37,7 @@ const fashionTrends = [
   },
 ];
 
-const Explore: React.FC = () => {
+const Explore = () => {
   return (
     <Container maxW="container.md" mt={8}>
       <Heading mb={6}>Explore Recent Fashion Trends</Heading>

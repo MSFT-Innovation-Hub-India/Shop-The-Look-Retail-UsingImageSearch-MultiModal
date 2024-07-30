@@ -32,7 +32,7 @@ function Nav() {
                   <Link href='/'>History</Link>
                 </li>
                 <li>
-                  <Link href='/'>Explore</Link>
+                  <Link href='/explore'>Explore</Link>
                 </li>
               </ul>
             </nav>
