@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  search:
+    build:
+      context: ./search
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      - FLASK_ENV=production
+    env_file:
+      - ./search/.env  # Path to .env file for search service
+    volumes:
+      - ./search:/app  # Mount the local streamlit directory to the /app directory in the container
+
+  next-app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env.local  # Path to .env file for Next.js app
+    volumes:
+        - .:/app
+        - /app/node_modules
+        - /app/.next
+    ports:
+      - "3000:3000"
+
+  thread:
+    build:
+      context: ./thread
+      dockerfile: Dockerfile
+    ports:
+      - "5328:5328"
+    restart: always
+    environment:
+      - FLASK_ENV=production
+    env_file:
+      - ./thread/.env  # Path to .env file for search service
+    volumes:
+      - ./thread:/app  # Mount the local streamlit directory to the /app directory in the container
+
+  speech:
+    build:
+      context: ./speech
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    restart: always
+    environment:
+      - FLASK_ENV=production
+    env_file:
+      - ./speech/.env  # Path to .env file for search service
+    volumes:
+      - ./speech:/app  # Mount the local speech directory to the /app directory in the container
