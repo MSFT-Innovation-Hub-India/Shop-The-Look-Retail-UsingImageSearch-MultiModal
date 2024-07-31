@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* app/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+
+
+.bg-header {
+    --tw-bg-opacity: 1;
+    background-color: rgb(253 82 82 / var(--tw-bg-opacity)) /* #fd5252 */;
+}
