@@ -1,9 +1,0 @@
-Flask==3.0.3
-Flask-Cors==4.0.1
-python-dotenv==1.0.1
-requests==2.32.3
-azure-cognitiveservices-speech==1.38.0
-azure-ai-vision-imageanalysis==1.0.0b2
-azure-common==1.1.28
-azure-core==1.30.2
-azure-identity==1.17.1
