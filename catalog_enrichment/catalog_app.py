@@ -26,7 +26,7 @@ UPLOAD_HTML = """
 def index():
     return render_template_string(UPLOAD_HTML)
 
-@app.route('/upload', methods=['POST'])
+@app.route('/upload-catalog', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400

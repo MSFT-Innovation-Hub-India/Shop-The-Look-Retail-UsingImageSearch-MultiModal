@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 import uuid
 from datetime import datetime, timedelta
 from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
-
+import re
 
 from vector_config import *
 from data_configuration import *
@@ -175,14 +175,17 @@ def search():
 
     response = []
     for result in results:
-        response.append({
+        response_item = {
+            "assistant_id": None,
             "name": result['description'],
             "score": result['@search.score'],
             "url": result['img'],
             "price": result['price']
-        })
+        }
+        response.append(response_item)
         
         # Print each result
+        print(f"assistant_id: {response_item['assistant_id']}")
         print(f"Name: {result['description']}")
         print(f"Score: {result['@search.score']}")
         print(f"URL: {result['img']}")

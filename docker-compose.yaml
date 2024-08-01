@@ -1,26 +1,44 @@
 version: '3.8'
-include:
-  - search-service.yaml
+
 services:
-  image_upload:
+  search:
     build:
-      context: ./image_upload
+      context: ./search
       dockerfile: Dockerfile
     ports:
-      - "5003:5003"
+      - "8080:8080"
     restart: always
+    environment:
+      - FLASK_ENV=production
     env_file:
-      - ./image_upload/.env
+      - ./search/.env  # Path to .env file for search service
     volumes:
-      - ./image_upload:/app  # Mount the local streamlit directory to the /app directory in the container
-  streamlit:
+      - ./search:/app  # Mount the local streamlit directory to the /app directory in the container
+
+  thread:
     build:
-      context: ./streamlit
+      context: ./thread
       dockerfile: Dockerfile
     ports:
-      - "8501:8501"
+      - "5328:5328"
     restart: always
+    environment:
+      - FLASK_ENV=production
     env_file:
-      - ./streamlit/.env
+      - ./thread/.env  # Path to .env file for search service
     volumes:
-      - ./streamlit:/app  # Mount the local streamlit directory to the /app directory in the container
+      - ./thread:/app  # Mount the local streamlit directory to the /app directory in the container
+
+  speech:
+    build:
+      context: ./speech
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    restart: always
+    environment:
+      - FLASK_ENV=production
+    env_file:
+      - ./speech/.env  # Path to .env file for search service
+    volumes:
+      - ./speech:/app  # Mount the local speech directory to the /app directory in the container
