@@ -1,0 +1,14 @@
+{
+    "containerApps.deploymentConfigurations": [
+        {
+            "label": "stl-app-web",
+            "type": "AcrDockerBuildRequest",
+            "dockerfilePath": "Dockerfile",
+            "srcPath": ".",
+            "envPath": ".env.local",
+            "resourceGroup": "shop-the-look-retail",
+            "containerApp": "stl-app-web",
+            "containerRegistry": "shopthelookretail719575"
+        }
+    ]
+}
