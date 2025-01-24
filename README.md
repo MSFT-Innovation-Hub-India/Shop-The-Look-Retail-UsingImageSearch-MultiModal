@@ -1,7 +1,12 @@
 
 # Shop the Look
 
-A Generative AI powered solution that implements Shop the Look capabilities for Retail users
+A Multi modal Generative AI powered solution that implements Shop the Look capabilities for Retail users
+
+## Function Features
+- Users can upload an image and search for matching apparal
+- Users can upload an image, point to a particular item in the image using natural language and search for matching items. This involves the gpt-4o multi modal capabilities to describe the item being pointed to, create an enriched search prompt and use Azure AI Search to return matching items from the Catalog
+- Showcase how catalog enrichment can be done on the fly, by using gpt-4o model to generate a compelling description of each item in the catalog search results, based on the image of the items
 
 
 ## Features
