@@ -66,7 +66,7 @@ const Chatbot = () => {
 
       try {
         const response = await axios.post(
-          process.env.NEXT_PUBLIC_UPLOAD_IMAGE_ENDPOINT || '',
+          process.env.NEXT_PUBLIC_UPLOAD_IMAGE_ENDPOINT || '/api/upload',
           formData,
           {
             headers: {
