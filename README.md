@@ -42,7 +42,7 @@ To run this project, you will need to add the following environment variables to
 
 `AZURE_COMPUTER_VISION_KEY`
 
-`BLOB_CONNECTION_STRING`
+`AZURE_STORAGE_ACCOUNT_NAME` (Required for Azure Default Credentials storage access)
 
 `BLOB_CONTAINER_NAME`
 
@@ -50,9 +50,38 @@ To run this project, you will need to add the following environment variables to
 
 `AZURE_SEARCH_SERVICE_ENDPOINT`
 
-`BLOB_CONNECTION_STRING`
-
 `BLOB_CONTAINER_NAME_IMG`
+
+### Migration to Azure Default Credentials
+
+The application now uses Azure Default Credentials for storage account authentication instead of connection strings. This enables:
+- Support for Managed Identity in Azure Container Apps
+- Enhanced security by eliminating connection string management
+- Seamless integration with Azure RBAC
+
+When deploying to Azure Container Apps with Managed Identity:
+1. Assign the Managed Identity the "Storage Blob Data Contributor" role on the storage account
+2. Set the `AZURE_STORAGE_ACCOUNT_NAME` environment variable
+3. Remove any `BLOB_CONNECTION_STRING` environment variables (deprecated)
+
+### Deployment Notes
+
+For local development, ensure you're authenticated with Azure CLI:
+```bash
+az login
+```
+
+For Container Apps deployment with Managed Identity:
+```bash
+# Enable system-assigned managed identity
+az containerapp identity assign --name your-app --resource-group your-rg
+
+# Grant storage permissions
+az role assignment create \
+  --assignee <managed-identity-principal-id> \
+  --role "Storage Blob Data Contributor" \
+  --scope /subscriptions/<subscription-id>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<storage-account>
+```
 
 
 
