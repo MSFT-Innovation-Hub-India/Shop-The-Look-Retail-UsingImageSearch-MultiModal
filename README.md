@@ -43,6 +43,10 @@ To run this project, you will need to add the following environment variables to
 
 `BLOB_CONTAINER_NAME_IMG` - The blob container name for uploaded images
 
+`AZURE_SUBSCRIPTION_ID` - Your Azure subscription ID (required for managed identity)
+
+`AZURE_RESOURCE_GROUP` - The resource group name where your storage account is located
+
 `AZURE_SEARCH_ADMIN_KEY`
 
 `AZURE_SEARCH_SERVICE_ENDPOINT`
@@ -58,8 +62,6 @@ This application uses **Azure Managed Identity** for authentication with Azure B
 
 2. For Azure AI Search indexer to access blob storage, the search service's managed identity must also have:
    - **Storage Blob Data Reader** - For reading blobs during indexing
-   
-3. Update the ResourceId in `data_configuration.py` with your actual subscription ID and resource group name
 
 
 
