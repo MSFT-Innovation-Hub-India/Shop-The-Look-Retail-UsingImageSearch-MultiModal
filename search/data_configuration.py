@@ -42,20 +42,24 @@ from azure.search.documents.indexes.models import (
     VisionVectorizeSkill
 )
 
-def create_or_update_data_source(indexer_client, container_name, connection_string, index_name):
+def create_or_update_data_source(indexer_client, container_name, storage_account_name, index_name):
     """
-    Create or update a data source connection for Azure AI Search.
+    Create or update a data source connection for Azure AI Search using Managed Identity.
     """
     container = SearchIndexerDataContainer(name=container_name)
+    
+    # Use managed identity for blob storage connection
+    # Setting connection_string to None and identity will make it use system-assigned managed identity
     data_source_connection = SearchIndexerDataSourceConnection(
         name=f"{index_name}-blob",
         type="azureblob",
-        connection_string=connection_string,
+        connection_string=f"ResourceId=/subscriptions/{{subscription-id}}/resourceGroups/{{resource-group}}/providers/Microsoft.Storage/storageAccounts/{storage_account_name};",
         container=container
     )
     try:
         indexer_client.create_or_update_data_source_connection(data_source_connection)
-        print(f"Data source '{index_name}-blob' created or updated successfully.")
+        print(f"Data source '{index_name}-blob' created or updated successfully with managed identity.")
+        print(f"Note: Update the ResourceId in the connection string with your actual subscription ID and resource group.")
     except Exception as e:
         raise Exception(f"Failed to create or update data source due to error: {e}")
     

@@ -15,7 +15,8 @@ from azure.search.documents.models import (
 from dotenv import load_dotenv
 import uuid
 from datetime import datetime, timedelta
-from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
+from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions, UserDelegationKey
+from azure.identity import DefaultAzureCredential
 import re
 
 from vector_config import *
@@ -31,7 +32,7 @@ CORS(app)
 AZURE_AI_VISION_API_KEY = os.getenv("AZURE_COMPUTER_VISION_KEY")
 AZURE_AI_VISION_ENDPOINT = os.getenv("AZURE_COMPUTER_VISION_ENDPOINT")
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-BLOB_CONNECTION_STRING = os.getenv("BLOB_CONNECTION_STRING")
+BLOB_STORAGE_ACCOUNT_NAME = os.getenv("BLOB_STORAGE_ACCOUNT_NAME")
 BLOB_CONTAINER_NAME = os.getenv("BLOB_CONTAINER_NAME")
 INDEX_NAME = "build-multimodal-demo"
 SEARCH_SERVICE_API_KEY = os.getenv("AZURE_SEARCH_ADMIN_KEY")
@@ -47,7 +48,7 @@ azure_search_credential = authenticate_azure_search(api_key=SEARCH_SERVICE_API_K
 indexer_client = SearchIndexerClient(SEARCH_SERVICE_ENDPOINT, azure_search_credential)
 
 # Call the function to create or update the data source
-create_or_update_data_source(indexer_client, BLOB_CONTAINER_NAME, BLOB_CONNECTION_STRING, INDEX_NAME)
+create_or_update_data_source(indexer_client, BLOB_CONTAINER_NAME, BLOB_STORAGE_ACCOUNT_NAME, INDEX_NAME)
 
 # Create index client and set up vector search configuration
 index_client = SearchIndexClient(
@@ -86,24 +87,40 @@ search_client = SearchClient(
     credential=azure_search_credential,
 )
 
-# Initialize Azure Blob Storage
-connect_str = os.getenv("BLOB_CONNECTION_STRING")
+# Initialize Azure Blob Storage with Managed Identity
+blob_storage_account_name = os.getenv("BLOB_STORAGE_ACCOUNT_NAME")
 container_name = os.getenv("BLOB_CONTAINER_NAME_IMG")
-#blob_service_client = BlobServiceClient.from_connection_string(connect_str)
 
-def initialize_blob_service(connect_str):
-    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+def initialize_blob_service(storage_account_name):
+    """Initialize BlobServiceClient using DefaultAzureCredential (Managed Identity)"""
+    account_url = f"https://{storage_account_name}.blob.core.windows.net"
+    credential = DefaultAzureCredential()
+    blob_service_client = BlobServiceClient(account_url=account_url, credential=credential)
     return blob_service_client
 
 def generate_image_url(blob_service_client, container_name, filename):
+    """Generate image URL with user delegation SAS token (using Managed Identity)"""
+    # Get a user delegation key for generating SAS token
+    start_time = datetime.utcnow()
+    expiry_time = start_time + timedelta(hours=1)
+    
+    # Get the user delegation key
+    user_delegation_key = blob_service_client.get_user_delegation_key(
+        key_start_time=start_time,
+        key_expiry_time=expiry_time
+    )
+    
+    # Generate SAS token using user delegation key
+    from azure.storage.blob import generate_blob_sas, BlobSasPermissions
     sas_token = generate_blob_sas(
         account_name=blob_service_client.account_name,
         container_name=container_name,
         blob_name=filename,
-        account_key=blob_service_client.credential.account_key,
+        user_delegation_key=user_delegation_key,
         permission=BlobSasPermissions(read=True),
-        expiry=datetime.utcnow() + timedelta(hours=1)
+        expiry=expiry_time
     )
+    
     image_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/{filename}?{sas_token}"
     return image_url
 
@@ -115,8 +132,8 @@ def upload_image_endpoint():
         return jsonify({'error': 'No file provided'}), 400
 
     try:
-        # Initialize the blob service client
-        blob_service_client = initialize_blob_service(BLOB_CONNECTION_STRING)
+        # Initialize the blob service client using managed identity
+        blob_service_client = initialize_blob_service(blob_storage_account_name)
         
         # Process the uploaded file
         image_id = uuid.uuid4().hex
