@@ -37,17 +37,31 @@ To run this project, you will need to add the following environment variables to
 
 `AZURE_COMPUTER_VISION_KEY`
 
-`BLOB_CONNECTION_STRING`
+`BLOB_STORAGE_ACCOUNT_NAME` - The name of your Azure Storage Account (e.g., "mystorageaccount")
 
-`BLOB_CONTAINER_NAME`
+`BLOB_CONTAINER_NAME` - The blob container name for indexer data source
+
+`BLOB_CONTAINER_NAME_IMG` - The blob container name for uploaded images
+
+`AZURE_SUBSCRIPTION_ID` - Your Azure subscription ID (required for managed identity)
+
+`AZURE_RESOURCE_GROUP` - The resource group name where your storage account is located
 
 `AZURE_SEARCH_ADMIN_KEY`
 
 `AZURE_SEARCH_SERVICE_ENDPOINT`
 
-`BLOB_CONNECTION_STRING`
 
-`BLOB_CONTAINER_NAME_IMG`
+### Managed Identity Configuration
+
+This application uses **Azure Managed Identity** for authentication with Azure Blob Storage instead of connection strings. Ensure that:
+
+1. The application's managed identity (system-assigned or user-assigned) has the following RBAC roles assigned on the storage account:
+   - **Storage Blob Data Contributor** - For reading and writing blobs
+   - **Storage Blob Delegator** - For generating user delegation SAS tokens
+
+2. For Azure AI Search indexer to access blob storage, the search service's managed identity must also have:
+   - **Storage Blob Data Reader** - For reading blobs during indexing
 
 
 
